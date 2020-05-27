@@ -1,3 +1,3 @@
-# Node Boilerplate
+# A2R Framework
 
-Node Boilerplate for A2r TypeScript Projects
+A2R Framework core
