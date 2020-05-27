@@ -1,15 +1,13 @@
 {
-  "name": "project-name",
-  "version": "0.0.3",
-  "description": "Project Description",
+  "name": "a2r",
+  "version": "0.0.1",
+  "description": "A2R Framework",
   "engines": {
     "node": ">=12"
   },
   "scripts": {
     "build": "tsc",
     "dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./index.ts",
-    "docker-build": "IMAGE=$npm_package_name:latest;docker build --rm --pull -f \"./Dockerfile\" -t $IMAGE \".\"",
-    "docker-start": "IMAGE=$npm_package_name:latest;docker run -it -v $INIT_CWD/server:/usr/src/app/server $IMAGE",
     "start": "node ./dist/index.js",
     "lint": "npx eslint --config ./.eslintrc ./**/*.ts",
     "test": "jest",
@@ -23,36 +21,37 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acttoreact/api-watcher.git"
+    "url": "git+https://github.com/acttoreact/a2r.git"
   },
   "keywords": [
     "acttoreact",
-    "a2r",
-    "api",
-    "watcher"
+    "a2r"
   ],
   "author": "Act to React (https://a2r.com/)",
   "license": "MIT",
   "homepage": "https://a2r.com/",
   "dependencies": {},
   "devDependencies": {
-    "typescript": "^3.5.3",
-    "@types/jest": "^25.1.1",
-    "@types/node": "^13.13.4",
-    "@typescript-eslint/eslint-plugin": "^2.30.0",
-    "@typescript-eslint/parser": "^2.30.0",
-    "babel-jest": "^25.5.1",
-    "eslint": "^6.8.0",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.5",
+    "@types/rimraf": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^3.0.1",
+    "@typescript-eslint/parser": "^3.0.1",
+    "babel-jest": "^26.0.1",
+    "better-docs": "^2.0.1",
     "coveralls": "^3.0.11",
+    "eslint": "^7.1.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.14.2",
-    "jest": "^25.5.1",
+    "eslint-plugin-react": "^7.20.0",
+    "jest": "^26.0.1",
     "jsdoc": "^3.6.3",
-    "ts-jest": "^25.4.0",
+    "snyk": "^1.329.0",
+    "ts-jest": "^26.0.0",
     "ts-node-dev": "^1.0.0-pre.40",
-    "better-docs": "^1.4.7"
+    "typescript": "^3.9.3",
+    "wait-for-expect": "^3.0.2"
   }
 }
