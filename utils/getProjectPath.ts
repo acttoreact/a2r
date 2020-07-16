@@ -11,7 +11,13 @@ const workingDirectory = process.cwd();
  */
 let projectPath = '';
 
-const getProjectPath = async (targetPath: string = workingDirectory): Promise<string> => {
+/**
+ * Looks for folder containing `package.json` file with framework installed as a dev-dependency
+ * @param targetPath Target path
+ */
+const getProjectPath = async (
+  targetPath = workingDirectory,
+): Promise<string> => {
   if (projectPath) {
     return projectPath;
   }
@@ -19,7 +25,10 @@ const getProjectPath = async (targetPath: string = workingDirectory): Promise<st
   const packageExists = await exists(packageJsonPath);
   if (packageExists) {
     const packageInfo = await import(packageJsonPath);
-    if (packageInfo.default.dependencies?.a2r) {
+    if (
+      packageInfo.default.devDependencies &&
+      packageInfo.default.devDependencies.a2r
+    ) {
       projectPath = path.dirname(packageJsonPath);
     }
     return projectPath;

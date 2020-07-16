@@ -1,3 +1,4 @@
+import path from 'path';
 import { out } from '@a2r/telemetry';
 
 import { log, framework, terminalCommand } from './colors';
@@ -18,8 +19,10 @@ const init = async (): Promise<void> => {
     await ensureNpmInit(workingDirectory);
     await copyFilesFromTemplate(mainTemplateFolder, workingDirectory);
     const latestVersion = await getLatestVersion();
-    log(`Running ${terminalCommand(`npm install`)}...`);
+    log(`Installing ${framework}...`);
     await exec('npm', ['install', `a2r@${latestVersion}`, '--save-dev']);
+    log(`Running ${terminalCommand(`npm install`)}...`);
+    await exec('npm', ['install'], { cwd: path.resolve(workingDirectory, 'server') });
     await setup(workingDirectory, latestVersion);
     log(`<<< 👌 Project initialized successfully`);
   } else {

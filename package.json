@@ -1,32 +1,29 @@
 {
   "name": "a2r",
-  "version": "0.6.0",
+  "version": "0.6.8",
   "description": "A2R Framework",
   "engines": {
     "node": ">=12"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "templates"
-  ],
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "tsc",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
     "dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpileOnly ./index.ts",
-    "start": "node ./dist/index.js",
+    "docs": "jsdoc -c jsdoc.json",
     "lint": "npx eslint --config ./.eslintrc ./**/*.ts",
+    "start": "node ./dist/index.js",
     "test": "jest",
     "test-clear": "rm -rf coverage;rm -rf dist",
     "test-dev": "NODE_ENV=development npx jest --watch",
     "test-coverage": "jest --coverage",
     "test-coverage-dev": "NODE_ENV=development jest --coverage --watchAll",
-    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
     "test-full": "npm run test-clear;npm run build;npm run test;npm run test-coverage;npm run lint;npm audit;npm run docs",
-    "docs": "jsdoc -c jsdoc.json"
+    "upload": "rm -rf ./dist;npm run build;cp -r ./templates/ ./dist/templates;cd dist;npm i;npm publish --access=public;"
   },
   "bin": {
-    "a2r": "./dist/index.js"
+    "a2r": "./index.js"
   },
   "repository": {
     "type": "git",

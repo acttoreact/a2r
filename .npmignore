@@ -1,0 +1,10 @@
+log/
+tests/
+/.eslintrc
+/.eslintignore
+/.prettierrc
+/.prettierignore
+/jsdoc.json
+/README.md
+/tsconfig.json
+/tsconfig.jest.json
