@@ -9,7 +9,7 @@ module.exports = {
   collectCoverageFrom: [
     "**/*.{ts,tsx}",
     "!**/node_modules/**",
-    "!**/templates/**",
+    "!**/.a2r/**",
     "!**/dist/**",
     "!**/test/mocks/**"
   ],

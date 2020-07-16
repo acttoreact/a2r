@@ -4,6 +4,7 @@
     "acttoreact",
     "binpar",
     "camelcase",
+    "deepmerge",
     "downlevel",
     "lcov",
     "plusplus",

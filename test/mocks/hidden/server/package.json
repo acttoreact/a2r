@@ -1,0 +1,37 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "description": "Project Server",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "test": "jest",
+    "test-clear": "rm -rf coverage",
+    "test-dev": "NODE_ENV=development npx jest --watch",
+    "test-coverage": "jest --coverage",
+    "test-coverage-dev": "NODE_ENV=development jest --coverage --watchAll",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "lint": "npx eslint --config ../.eslintrc ./**/*.ts",
+    "docs": "jsdoc -c jsdoc.json"
+  },
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.2",
+    "@types/node": "^12.12.39",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb": "^17.1.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.20.0",
+    "jest": "^24",
+    "ts-jest": "^25.5.1",
+    "ts-node-dev": "^1.0.0-pre.40",
+    "typescript": "^3.9.2"
+  }
+}
