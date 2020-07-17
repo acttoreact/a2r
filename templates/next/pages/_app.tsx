@@ -1,9 +1,6 @@
-import React, { createContext } from 'react';
 import App, { AppInitialProps, AppContext } from 'next/app';
 
 import getSessionId from '../utils/getSessionId';
-
-export const SessionContext = createContext<string>('');
 
 class A2RApp extends App {
   public static async getInitialProps(appContext: AppContext): Promise<AppInitialProps> {
@@ -15,19 +12,6 @@ class A2RApp extends App {
         sessionId,
       },
     };
-  }
-
-  public render(): JSX.Element {
-    const {
-      Component,
-      pageProps: { sessionId, ...props },
-    } = this.props;
-
-    return (
-      <SessionContext.Provider value={sessionId}>
-        <Component {...props} />
-      </SessionContext.Provider>
-    );
   }
 }
 
