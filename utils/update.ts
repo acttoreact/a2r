@@ -2,6 +2,8 @@ import exec from '../tools/exec';
 import getLatestVersion from './getLatestVersion';
 import { log, version, framework } from './colors';
 
+import { updateFrameworkVersion } from './settings';
+
 import packageJSON from '../package.json';
 
 const update = async (): Promise<void> => {
@@ -22,6 +24,7 @@ const update = async (): Promise<void> => {
     );
     log('... ⏰ this process might take some minutes 🤷‍ ...');
     await exec('npm', ['install', `a2r@${lastVersion}`, '--save;']);
+    updateFrameworkVersion(lastVersion);
     log(`>>> Project updated to ${version(lastVersion)}.`);
   }
 };

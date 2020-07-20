@@ -35,6 +35,12 @@ export const addProject = async (info: ProjectInfo): Promise<SolutionInfo> => {
   return updateSettings(settings);
 };
 
+export const updateFrameworkVersion = async (version: string): Promise<SolutionInfo> => {
+  const settings = await getSettings();
+  settings.version = version;
+  return updateSettings(settings);
+};
+
 export const setupSettings = async (projectPath: string, settings: SolutionInfo): Promise<void> => {
   log(`Initializing settings...`);
   const settingsPath = path.resolve(projectPath, '.a2r', 'settings.json');
