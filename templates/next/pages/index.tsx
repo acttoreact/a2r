@@ -14,12 +14,12 @@ export default (): JSX.Element => {
     });
   }, []);
   return (
-    <React.Fragment>
+    <>
       <Head>
         <title>Hello BinPar!</title>
         <link rel="stylesheet" type="text/css" href="/styles.css" />
       </Head>
       <h1>Hello BinPar</h1>
-    </React.Fragment>
+    </>
   );
 };

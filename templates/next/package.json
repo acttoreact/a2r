@@ -21,6 +21,7 @@
     "typescript": "^3.9.2",
     "shortid": "^2.2.15",
     "socket.io-client": "^2.3.0",
+    "styled-components": "^5.1.1",
     "universal-cookie": "^4.0.3"
   },
   "devDependencies": {
@@ -28,9 +29,11 @@
     "@types/mocha": "^8.0.0",
     "@types/node": "^14.0.23",
     "@types/react": "^16.9.43",
+    "@types/styled-components": "^5.1.1",
     "@typescript-eslint/eslint-plugin": "^3.6.1",
     "@typescript-eslint/parser": "^3.6.1",
     "babel-jest": "^26.1.0",
+    "babel-plugin-styled-components": "^1.10.7",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "eslint": "^7.4.0",
