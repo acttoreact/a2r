@@ -3,9 +3,14 @@ import jsCookie from 'js-cookie';
 import getId from 'shortid';
 import { NextPageContext } from 'next';
 
-const cookieKey = 'a2r_sessionId';
+import packageJson from '../package.json';
 
+/**
+ * Gets session ID
+ * @param ctx Next.js page context
+ */
 const getSessionId = (ctx: NextPageContext): string => {
+  const cookieKey = `${packageJson.name}_sessionId`;
   const header = ctx.req && ctx.req.headers && ctx.req.headers.cookie;
   const cookies = new Cookies(header);
   let sessionId = cookies.get(cookieKey);

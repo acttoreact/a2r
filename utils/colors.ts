@@ -44,7 +44,7 @@ export const log = (message: string): void => {
  * Logs styled version number
  * @param versionNumber Version number
  */
-export const version = (versionNumber: string): string => `v${chalk.green(versionNumber)}`;
+export const version = (versionNumber: string): string => chalk.green(`v${versionNumber}`);
 
 /**
  * Logs styled full path

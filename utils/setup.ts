@@ -1,3 +1,5 @@
+import path from 'path';
+
 import getDockerImageVersion from './getDockerImageVersion';
 import pullDockerImage from './pullDockerImage';
 import { setupSettings } from './settings';
@@ -18,9 +20,14 @@ const setup = async (projectPath: string, version: string): Promise<void> => {
   await pullDockerImage('server-dev', devServerVersion);
 
   const now = new Date();
+  const pathName = path.basename(projectPath);
 
   const settings: SolutionInfo = {
     version,
+    db: {
+      devConnectionString: `mongodb://localhost:27017/${pathName}/`,
+      prodConnectionString: `mongodb://localhost:27017/${pathName}/`,
+    },
     projects: [],
     devServer: {
       version: devServerVersion,
