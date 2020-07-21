@@ -1,8 +1,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "commonjs",
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "preserve",
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -10,12 +11,9 @@
     "noUnusedParameters": true,
     "removeComments": false,
     "preserveConstEnums": true,
-    "declaration": true,
+    "sourceMap": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "outDir": "./dist",
-    "rootDir": ".",
-    "extendedDiagnostics": true,
     "typeRoots": [
       "./node_modules/@types"
     ],
@@ -24,19 +22,32 @@
       "es2015",
       "es2016"
     ],
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "api": [
+        ".a2r/proxy/api"
+      ],
+      "model/*": [
+        ".a2r/proxy/model/*"
+      ]
+    }
   },
-  "include": [
-    "**/*.ts"
-  ],
   "exclude": [
     "node_modules",
-    "./dist",
-    "./test",
-    "./templates"
+    "tests/**/*.ts",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ]
 }

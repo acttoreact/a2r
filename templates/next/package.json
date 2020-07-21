@@ -1,0 +1,52 @@
+{
+  "name": "ts-next-boilerplate",
+  "version": "1.0.0",
+  "description": "TypeScript Next Boilerplate",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "lint": "eslint \"**/*.ts*\" --ignore-pattern node_modules/",
+    "start": "next start",
+    "test": "jest",
+    "test-dev": "NODE_ENV=development npx jest --watch",
+    "typeCheck": "tsc -p ./tsconfig.json"
+  },
+  "author": "Act To React (https://www.a2r.com/)",
+  "license": "ISC",
+  "homepage": "https://www.a2r.com",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "js-cookie": "^2.2.1",
+    "next": "^9.4.4",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "typescript": "^3.9.2",
+    "shortid": "^2.2.15",
+    "socket.io-client": "^2.3.0",
+    "styled-components": "^5.1.1",
+    "universal-cookie": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.4",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^14.0.23",
+    "@types/react": "^16.9.43",
+    "@types/styled-components": "^5.1.1",
+    "@typescript-eslint/eslint-plugin": "^3.6.1",
+    "@typescript-eslint/parser": "^3.6.1",
+    "babel-jest": "^26.1.0",
+    "babel-plugin-styled-components": "^1.10.7",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "eslint": "^7.4.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.3",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.3",
+    "typescript": "^3.9.7"
+  }
+}

@@ -10,7 +10,7 @@
     "noUnusedParameters": true,
     "removeComments": false,
     "preserveConstEnums": true,
-    "declaration": true,
+    "sourceMap": true,
     "skipLibCheck": true,
     "baseUrl": ".",
     "outDir": "./dist",
@@ -30,13 +30,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": [
-    "**/*.ts"
-  ],
   "exclude": [
     "node_modules",
-    "./dist",
-    "./test",
-    "./templates"
+    "dist",
+    "test/**/*.ts"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ]
 }

@@ -2,4 +2,3 @@ node_modules
 next-env.d.ts
 jest.config.js
 dist/
-templates/
