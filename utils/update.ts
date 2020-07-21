@@ -20,9 +20,8 @@ const update = async (): Promise<void> => {
     log(
       `>>> Updating project from ${version(
         currentVersion,
-      )} to v${version(lastVersion)}.`,
+      )} to ${version(lastVersion)}.`,
     );
-    log('... ⏰ this process might take some minutes 🤷‍ ...');
     await exec('npm', ['install', `a2r@${lastVersion}`, '--save;']);
     updateFrameworkVersion(lastVersion);
     log(`>>> Project updated to ${version(lastVersion)}.`);

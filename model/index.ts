@@ -51,7 +51,16 @@ export interface ProjectInfo {
   version: string;
   type: 'next' | 'expo' | 'service';
   path: string;
+  port: number;
   docker?: DockerInfo;
+}
+
+/**
+ * Database info
+ */
+export interface DatabaseInfo {
+  devConnectionString: string;
+  prodConnectionString: string;
 }
 
 /**
@@ -63,8 +72,17 @@ export interface SolutionInfo {
   devServer: DockerInfo;
   server: DockerInfo;
   watcher: DockerInfo;
+  db?: DatabaseInfo;
 }
 
+/**
+ * Basic interface for parsing `package.json`
+ */
 export interface PackageJson {
   name: string;
 }
+
+/**
+ * Type used to make one or multiple interface keys optional
+ */
+export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

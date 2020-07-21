@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
+    "lint": "eslint \"**/*.ts*\" --ignore-pattern node_modules/",
     "start": "next start",
     "test": "jest",
-    "test-dev": "NODE_ENV=development npx jest --watch"
+    "test-dev": "NODE_ENV=development npx jest --watch",
+    "typeCheck": "tsc -p ./tsconfig.json"
   },
   "author": "Act To React (https://www.a2r.com/)",
   "license": "ISC",
