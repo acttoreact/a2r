@@ -50,13 +50,19 @@
       },
       {
         "selector": "variable",
-        "format": ["camelCase", "UPPER_CASE"]
+        "format": ["camelCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow"
       },
       {
         "selector": "parameter",
         "format": ["camelCase"],
         "leadingUnderscore": "allow"
       },
+      {
+        "selector": "property",
+        "format": ["camelCase"],
+        "leadingUnderscore": "allow"
+      }
       {
         "selector": "typeLike",
         "format": ["PascalCase"]

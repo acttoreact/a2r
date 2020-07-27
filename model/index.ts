@@ -45,6 +45,13 @@ export interface DockerInfo {
 }
 
 /**
+ * Server info
+ */
+export interface ServerInfo extends DockerInfo {
+  url: string;
+}
+
+/**
  * Project info
  */
 export interface ProjectInfo {
@@ -59,8 +66,8 @@ export interface ProjectInfo {
  * Database info
  */
 export interface DatabaseInfo {
-  devConnectionString: string;
-  prodConnectionString: string;
+  url: string;
+  name: string;
 }
 
 /**
@@ -69,8 +76,8 @@ export interface DatabaseInfo {
 export interface SolutionInfo {
   version: string;
   projects: ProjectInfo[];
-  devServer: DockerInfo;
-  server: DockerInfo;
+  devServer: ServerInfo;
+  server: ServerInfo;
   watcher: DockerInfo;
   db?: DatabaseInfo;
 }
@@ -86,3 +93,5 @@ export interface PackageJson {
  * Type used to make one or multiple interface keys optional
  */
 export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export * from './auth';

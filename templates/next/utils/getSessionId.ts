@@ -3,7 +3,7 @@ import jsCookie from 'js-cookie';
 import getId from 'shortid';
 import { NextPageContext } from 'next';
 
-import packageJson from '../package.json';
+import packageJson from '../../package.json';
 
 /**
  * Gets session ID

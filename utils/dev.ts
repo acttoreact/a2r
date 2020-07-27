@@ -5,12 +5,16 @@ import getProjectPath from './getProjectPath';
 import exec from '../tools/exec';
 import { log, fullPath, terminalCommand } from './colors';
 
+import { mongoUrlParam, mongoDbNameParam } from '../settings';
+
+const workDir = '/usr/src/app';
+
 /**
  * Temporary `dev` command that will run all needed dockers for solution
  */
 const dev = async (): Promise<void> => {
   const settings = await getSettings();
-  const { watcher, devServer, projects } = settings;
+  const { watcher, devServer, projects, db } = settings;
   if (projects.length) {
     const mainProjectPath = await getProjectPath();
     const packageJson = await getPackageJson(mainProjectPath);
@@ -23,7 +27,21 @@ const dev = async (): Promise<void> => {
     log(`Starting server using ${devServerImage}...`);
     await exec('docker', ['stop', devServerName]);
     await exec('docker', ['rm', devServerName]);
-    const devServerCommand = `run -it -d -v ${mainProjectPath}/server:/usr/src/app/server -p 4000:4000 --env COOKIE_KEY=${cookieKey} --name ${devServerName} ${devServerImage}`;
+    const serverParams = [`COOKIE_KEY=${cookieKey}`];
+    if (db) {
+      const { url, name } = db;
+      serverParams.push(`${mongoUrlParam}=${url}`);
+      serverParams.push(`${mongoDbNameParam}=${name}`);
+    }
+    const serverEnv = serverParams.map((p) => `--env ${p}`).join(' ');
+    const serverVolumes = [
+      `-v ${mainProjectPath}/server/api:${workDir}/server/api`,
+      `-v ${mainProjectPath}/server/model:${workDir}/server/model`,
+      `-v ${mainProjectPath}/server/package.json:${workDir}/server/package.json`,
+    ];
+    const devServerCommand = `run -it -d ${serverVolumes.join(
+      ' ',
+    )} -p 4000:4000 ${serverEnv} --name ${devServerName} ${devServerImage}`;
     log(`Starting server docker: docker ${devServerCommand}`);
     await exec('docker', devServerCommand.split(' '));
     log(`Server running as ${devServerName}`);
@@ -33,12 +51,12 @@ const dev = async (): Promise<void> => {
     const proxies = `--env PROXIES=${projects
       .map(({ path: projectPath }) => projectPath)
       .join(',')}`;
-    const volumes = projects.map(
+    const watcherVolumes = projects.map(
       ({ path: projectPath }) =>
-        `-v ${mainProjectPath}/${projectPath}/.a2r/proxy:/usr/src/app/.a2r/${projectPath}`,
+        `-v ${mainProjectPath}/${projectPath}/.a2r/proxy:${workDir}/.a2r/${projectPath}`,
     );
     log(`Starting watcher using ${watcherImage}...`);
-    const watcherCommand = `run -it -d ${proxies} -v ${mainProjectPath}/server:/usr/src/app/server ${volumes.join(
+    const watcherCommand = `run -it -d ${proxies} -v ${mainProjectPath}/server:${workDir}/server ${watcherVolumes.join(
       ' ',
     )} --name ${watcherName} ${watcherImage}`;
     await exec('docker', ['stop', watcherName]);

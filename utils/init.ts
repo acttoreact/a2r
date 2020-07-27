@@ -22,7 +22,9 @@ const init = async (): Promise<void> => {
     log(`Installing ${framework}...`);
     await exec('npm', ['install', `a2r@${latestVersion}`, '--save-dev']);
     log(`Running ${terminalCommand(`npm install`)}...`);
-    await exec('npm', ['install'], { cwd: path.resolve(workingDirectory, 'server') });
+    await exec('npm', ['install'], {
+      cwd: path.resolve(workingDirectory, 'server'),
+    });
     await setup(workingDirectory, latestVersion);
     log(`<<< 👌 Project initialized successfully`);
   } else {
