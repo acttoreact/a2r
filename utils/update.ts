@@ -7,10 +7,10 @@ import { updateFrameworkVersion } from './settings';
 import packageJSON from '../package.json';
 
 const update = async (): Promise<void> => {
-  const lastVersion = await getLatestVersion();
+  const latestVersion = await getLatestVersion();
   const { version: currentVersion } = packageJSON;
 
-  if (lastVersion === currentVersion) {
+  if (latestVersion === currentVersion) {
     log(
       `Your project is already using the latest version (${version(
         currentVersion,
@@ -20,11 +20,11 @@ const update = async (): Promise<void> => {
     log(
       `>>> Updating project from ${version(
         currentVersion,
-      )} to ${version(lastVersion)}.`,
+      )} to ${version(latestVersion)}.`,
     );
-    await exec('npm', ['install', `a2r@${lastVersion}`, '--save;']);
-    updateFrameworkVersion(lastVersion);
-    log(`>>> Project updated to ${version(lastVersion)}.`);
+    await exec('npm', ['install', `a2r@${latestVersion}`, '--save;']);
+    updateFrameworkVersion(latestVersion);
+    log(`>>> Project updated to ${version(latestVersion)}.`);
   }
 };
 

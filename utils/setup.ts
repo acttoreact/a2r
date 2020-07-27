@@ -25,8 +25,8 @@ const setup = async (projectPath: string, version: string): Promise<void> => {
   const settings: SolutionInfo = {
     version,
     db: {
-      devConnectionString: `mongodb://localhost:27017/${pathName}/`,
-      prodConnectionString: `mongodb://localhost:27017/${pathName}/`,
+      url: 'mongodb://localhost:27017',
+      name: pathName,
     },
     projects: [],
     devServer: {
@@ -34,12 +34,14 @@ const setup = async (projectPath: string, version: string): Promise<void> => {
       lastUpdate: now,
       imageName: `${dockerHubRepository}/server-dev`,
       name: 'server-dev',
+      url: 'http://localhost:4000',
     },
     server: {
       version: serverVersion,
       lastUpdate: now,
       imageName: `${dockerHubRepository}/server`,
       name: 'server',
+      url: 'http://localhost:4000',
     },
     watcher: {
       version: watcherVersion,
