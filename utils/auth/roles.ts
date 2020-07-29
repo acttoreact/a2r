@@ -1,4 +1,4 @@
-import { getCollection } from 'utils/dbPool';
+import { getCollection } from '../dbPool';
 
 import { User } from '../../model/auth';
 

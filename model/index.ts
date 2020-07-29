@@ -19,19 +19,43 @@ export interface CommandResponse {
    * @type {number}
    * @memberof CommandResponse
    */
-  code: number;
+  exitCode: number | null;
+  /**
+   * Command exit code
+   * @type {number}
+   * @memberof CommandResponse
+   */
+  closeCode: number | null;
   /**
    * Output from `stdout`
    * @type {string}
    * @memberof CommandResponse
    */
-  out: string;
+  stdout: string;
+  /**
+   * Output from `stderr`
+   * @type {string}
+   * @memberof CommandResponse
+   */
+  stderr: string;
   /**
    * Error (if any)
    * @type {(Error | null)}
    * @memberof CommandResponse
    */
   error: Error | null;
+  /**
+   * Signal received on exit event (if any)
+   * @type {(NodeJS.Signals | null)}
+   * @memberof CommandResponse
+   */
+  exitSignal: NodeJS.Signals | null;
+  /**
+   * Signal received on close event (if any)
+   * @type {(NodeJS.Signals | null)}
+   * @memberof CommandResponse
+   */
+  closeSignal: NodeJS.Signals | null;
 };
 
 /**

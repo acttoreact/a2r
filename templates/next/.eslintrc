@@ -28,6 +28,7 @@
     "no-underscore-dangle": "off",
     "import/extensions": "off",
     "react/jsx-filename-extension": [1, { "extensions": ["tsx"] }],
+    "react/no-unused-prop-types": "off",
     "@typescript-eslint/naming-convention": [
       "error",
       {

@@ -17,23 +17,43 @@ const exec = (command: string, args: readonly string[], options?: SpawnOptionsWi
     const res: CommandResponse = {
       command,
       args: args.join(' '),
-      code: 0,
-      out: '',
+      closeCode: null,
+      exitCode: null,
+      stdout: '',
+      stderr: '',
+      closeSignal: null,
+      exitSignal: null,
       error: null,
     };
+
+    let closed = false;
 
     const cmd = spawn(command, args, options);
 
     cmd.stdout.on('data', (data): void => {
-      res.out += data.toString();
+      if (!closed) {
+        res.stdout += data.toString();
+      }
+    });
+
+    cmd.stderr.on('data', (data): void => {
+      res.stderr += data.toString();
     });
 
     cmd.on('error', (err): void => {
       res.error = err;
       reject(res);
     });
-    cmd.on('close', (code): void => {
-      res.code = code;
+
+    cmd.on('close', (code, signal): void => {
+      closed = true;
+      res.closeCode = code;
+      res.closeSignal = signal;
+    });
+
+    cmd.on('exit', (code, signal): void => {
+      res.exitCode = code;
+      res.exitSignal = signal;
       resolve(res);
     });
   });
