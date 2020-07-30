@@ -21,16 +21,10 @@ const getProjectPath = async (
   if (projectPath) {
     return projectPath;
   }
-  const packageJsonPath = path.join(targetPath, 'package.json');
-  const packageExists = await exists(packageJsonPath);
-  if (packageExists) {
-    const packageInfo = await import(packageJsonPath);
-    if (
-      packageInfo.default.devDependencies &&
-      packageInfo.default.devDependencies.a2r
-    ) {
-      projectPath = path.dirname(packageJsonPath);
-    }
+  const a2rSettingsPath = path.resolve(targetPath, '.a2r', 'settings.json');
+  const settingsExist = await exists(a2rSettingsPath);
+  if (settingsExist) {
+    projectPath = path.dirname(path.dirname(a2rSettingsPath));
     return projectPath;
   }
   const nextTarget = path.dirname(targetPath);

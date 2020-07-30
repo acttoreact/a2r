@@ -66,6 +66,7 @@ export interface DockerInfo {
   name: string;
   imageName: string;
   lastUpdate: Date;
+  env?: {[key: string]: string};
 }
 
 /**
@@ -92,6 +93,7 @@ export interface ProjectInfo {
 export interface DatabaseInfo {
   url: string;
   name: string;
+  version?: string;
 }
 
 /**
@@ -111,6 +113,53 @@ export interface SolutionInfo {
  */
 export interface PackageJson {
   name: string;
+}
+
+/**
+ * Service info for docker-compose
+ */
+export interface DockerComposeService {
+  image: string;
+  volumes?: string[];
+  ports?: string[];
+  tty?: boolean;
+  restart?: 'no' | 'always' | 'on-failure' | 'unless-stopped';
+}
+
+/**
+ * Services dictionary for docker-compose
+ */
+export type DockerComposeServices = {[key: string]: DockerComposeService};
+
+/**
+ * Volume options info for docker-compose
+ */
+export interface DockerComposeVolumeOptions {
+  type: 'none';
+  device: string;
+  o: 'bind';
+}
+
+/**
+ * Volume info for docker-compose
+ */
+export interface DockerComposeVolume {
+  driver: 'local';
+  driver_opts: DockerComposeVolumeOptions;
+}
+
+/**
+ * Volumes dictionary for docker-compose
+ */
+export type DockerComposeVolumes = {[key: string]: DockerComposeVolume};
+
+/**
+ * Info for docker-compose
+ */
+export interface DockerCompose {
+  version: string;
+  services: DockerComposeServices;
+  volumes: DockerComposeVolumes;
 }
 
 /**
