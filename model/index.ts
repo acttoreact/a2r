@@ -33,12 +33,6 @@ export interface CommandResponse {
    */
   stdout: string;
   /**
-   * Output from `stderr`
-   * @type {string}
-   * @memberof CommandResponse
-   */
-  stderr: string;
-  /**
    * Error (if any)
    * @type {(Error | null)}
    * @memberof CommandResponse

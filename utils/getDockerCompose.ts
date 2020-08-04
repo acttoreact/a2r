@@ -16,9 +16,9 @@ const getDockerCompose = (
   mainProjectPath: string,
   devServerInternalPath: string,
   watcherInternalPath: string,
-  dbDataInternalPath: string,
+  // dbDataInternalPath: string,
 ): string => {
-  const { watcher, devServer, projects, db } = settings;
+  const { watcher, devServer, projects } = settings;
   if (projects.length) {
     const serverVolumeName = `${projectName}-server`;
 
@@ -61,15 +61,15 @@ const getDockerCompose = (
       },
     };
 
-    if (!db || !db.url) {
-      const serviceName = `${projectName}-db`;
-      services[serviceName] = {
-        ...defaultServiceOptions,
-        image: `mongo:${db && db.version ? db.version : 'latest'}`,
-        volumes: [`${dbDataInternalPath}:/data/db`],
-        ports: ['27017-27019'],
-      }
-    }
+    // if (!db || !db.url) {
+    //   const serviceName = `${projectName}-db`;
+    //   services[serviceName] = {
+    //     ...defaultServiceOptions,
+    //     image: `mongo:${db && db.version ? db.version : 'latest'}`,
+    //     volumes: [`${dbDataInternalPath}:/data/db`],
+    //     ports: ['27017-27019'],
+    //   }
+    // }
 
     for (let i = 0, l = projects.length; i < l; i++) {
       const { docker, port } = projects[i];

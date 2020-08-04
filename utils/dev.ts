@@ -1,15 +1,16 @@
 import path from 'path';
+import { spawn } from 'child_process';
 import { out } from '@a2r/telemetry';
 import { writeFile, ensureDir } from '@a2r/fs';
 
 import { getSettings, getPackageJson } from './settings';
 import getDockerCompose from './getDockerCompose';
 import getProjectPath from './getProjectPath';
-import exec from '../tools/exec';
 import { log, terminalCommand } from './colors';
+// import exec from '../tools/exec';
+import cleanText from '../tools/cleanText';
 
 import { mongoUrlParam, mongoDbNameParam } from '../settings';
-import cleanText from 'tools/cleanText';
 
 // const workDir = '/usr/src/app';
 
@@ -24,11 +25,19 @@ const dev = async (): Promise<void> => {
     const a2rInternalPath = path.resolve(mainProjectPath, '.a2r');
     const packageJson = await getPackageJson(mainProjectPath);
     const { name: projectName } = packageJson;
-    const cleanProjectName = cleanText(projectName, false, true, true, false, '', '-');
+    const cleanProjectName = cleanText(
+      projectName,
+      false,
+      true,
+      true,
+      false,
+      '',
+      '-',
+    );
     const cookieKey = `${cleanProjectName}_sessionId`;
     const devServerInternalPath = path.resolve(a2rInternalPath, 'dev-server');
     const watcherInternalPath = path.resolve(a2rInternalPath, 'watcher');
-    const dbDataInternalPath = path.resolve(a2rInternalPath, 'db', 'data');
+    // const dbDataInternalPath = path.resolve(a2rInternalPath, 'db', 'data');
     const devServerModules = path.resolve(
       devServerInternalPath,
       'node_modules',
@@ -44,10 +53,10 @@ const dev = async (): Promise<void> => {
       devServerParams.push(`${mongoUrlParam}=${url}`);
       devServerParams.push(`${mongoDbNameParam}=${name}`);
     } else {
-      await ensureDir(dbDataInternalPath);
-      const dbName = db && db.name ? db.name : cleanProjectName;
-      devServerParams.push(`${mongoUrlParam}=mongodb://${cleanProjectName}-db:27017`);
-      devServerParams.push(`${mongoDbNameParam}=${dbName}`);
+      // await ensureDir(dbDataInternalPath);
+      // const dbName = db && db.name ? db.name : cleanProjectName;
+      // devServerParams.push(`${mongoUrlParam}=mongodb://${cleanProjectName}-db:27017`);
+      // devServerParams.push(`${mongoDbNameParam}=${dbName}`);
     }
     Object.entries(devServer.env || {}).forEach(([key, value]) => {
       devServerParams.push(`${key}=${value}`);
@@ -71,7 +80,7 @@ const dev = async (): Promise<void> => {
       mainProjectPath,
       devServerInternalPath,
       watcherInternalPath,
-      dbDataInternalPath,
+      // dbDataInternalPath,
     );
     if (dockerCompose) {
       const dockerComposePath = path.resolve(
@@ -80,17 +89,25 @@ const dev = async (): Promise<void> => {
         'docker-compose.yml',
       );
       await writeFile(dockerComposePath, dockerCompose);
-      const args = [
-        '-f',
-        dockerComposePath,
-        'up',
-        '--force-recreate',
-      ];
+      const args = ['-f', dockerComposePath, 'up', '--force-recreate'];
       log(
-        `Running docker-compose: ${terminalCommand(`docker-compose ${args.join(' ')}`)}`,
+        `Running docker-compose: ${terminalCommand(
+          `docker-compose ${args.join(' ')}`,
+        )}`,
       );
-      const res = await exec('docker-compose', args);
-      log(`Command response\n${JSON.stringify(res)}`);
+
+      const command = spawn('docker-compose', args, { stdio: 'pipe'} );
+      command.stdout.pipe(process.stdout);
+      command.stderr.pipe(process.stdout);
+      // const res = await exec('docker-compose', args);
+      // log(`Command response:\n${JSON.stringify(res, null, 2)}`);
+      // await exec(
+      //   'docker-compose',
+      //   ['-f', dockerComposePath, 'logs', '-f'],
+      //   { stdio: 'pipe' },
+      // );
+      // const res = await exec('docker-compose', args, { stdio: 'pipe' });
+      // log(`Command response\n${JSON.stringify(res)}`);
     } else {
       out.error(
         'Something went wrong, empty docker-compose has been generated',

@@ -20,7 +20,6 @@ const exec = (command: string, args: readonly string[], options?: SpawnOptionsWi
       closeCode: null,
       exitCode: null,
       stdout: '',
-      stderr: '',
       closeSignal: null,
       exitSignal: null,
       error: null,
@@ -34,10 +33,6 @@ const exec = (command: string, args: readonly string[], options?: SpawnOptionsWi
       if (!closed) {
         res.stdout += data.toString();
       }
-    });
-
-    cmd.stderr.on('data', (data): void => {
-      res.stderr += data.toString();
     });
 
     cmd.on('error', (err): void => {

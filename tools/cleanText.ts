@@ -245,7 +245,7 @@ const defaultDiacriticsRemovalMap = [
   },
 ];
 
-const diacriticsMap = {};
+const diacriticsMap: {[key:string]: string} = {};
 for (let i = 0, l = defaultDiacriticsRemovalMap.length; i < l; i++) {
   const letters = defaultDiacriticsRemovalMap[i].letters.split('');
   for (let j = 0, k = letters.length; j < k; j++) {
