@@ -38,4 +38,10 @@ const login = async (email: string, password: string): Promise<LoginResponse> =>
   }
 };
 
+const clientLogin = async (token?: string, cookieKey?: string): Promise<void> => {
+  if (token) {
+    
+  }
+};
+
 export default login;
