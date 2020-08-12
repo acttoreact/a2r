@@ -3,16 +3,13 @@ import { spawn } from 'child_process';
 import { out } from '@a2r/telemetry';
 import { writeFile, ensureDir } from '@a2r/fs';
 
-import { getSettings } from './settings';
+import { getSettings, getPackageJson } from './settings';
 import getDockerCompose from './getDockerCompose';
 import getProjectPath from './getProjectPath';
-import getCookieKey from './getCookieKey';
 import { log, terminalCommand } from './colors';
-// import exec from '../tools/exec';
+import cleanText from '../tools/cleanText';
 
 import { mongoUrlParam, mongoDbNameParam } from '../settings';
-
-// const workDir = '/usr/src/app';
 
 /**
  * Temporary `dev` command that will run all needed dockers for solution
@@ -23,7 +20,19 @@ const dev = async (): Promise<void> => {
   if (projects.length) {
     const mainProjectPath = await getProjectPath();
     const a2rInternalPath = path.resolve(mainProjectPath, '.a2r');
-    const cookieKey = await getCookieKey();
+    const packageJson = await getPackageJson(mainProjectPath);
+    const { name: projectName } = packageJson;
+    const cleanProjectName = cleanText(
+      projectName,
+      false,
+      true,
+      true,
+      false,
+      '',
+      '-',
+    );
+    const cookieKey = `${cleanProjectName}_sessionId`;
+    const userTokenKey = `${cleanProjectName}_userToken`;
     const devServerInternalPath = path.resolve(a2rInternalPath, 'dev-server');
     const watcherInternalPath = path.resolve(a2rInternalPath, 'watcher');
     // const dbDataInternalPath = path.resolve(a2rInternalPath, 'db', 'data');
@@ -36,7 +45,10 @@ const dev = async (): Promise<void> => {
     await ensureDir(devServerModules);
 
     const devServerEnv = path.resolve(devServerInternalPath, '.env');
-    const devServerParams = [`COOKIE_KEY=${cookieKey}`];
+    const devServerParams = [
+      `COOKIE_KEY=${cookieKey}`,
+      `USER_TOKEN_KEY=${userTokenKey}`,
+    ];
     if (db && db.url && db.name) {
       const { url, name } = db;
       devServerParams.push(`${mongoUrlParam}=${url}`);
@@ -54,6 +66,7 @@ const dev = async (): Promise<void> => {
 
     const watcherEnv = path.resolve(watcherInternalPath, '.env');
     const watcherParams = [
+      `USER_TOKEN_KEY=${userTokenKey}`,
       `PROXIES=${projects
         .map(({ path: projectPath }) => projectPath)
         .join(',')}`,
@@ -85,7 +98,7 @@ const dev = async (): Promise<void> => {
         )}`,
       );
 
-      const command = spawn('docker-compose', args, { stdio: 'pipe'} );
+      const command = spawn('docker-compose', args, { stdio: 'pipe' });
       command.stdout.pipe(process.stdout);
       command.stderr.pipe(process.stdout);
       // const res = await exec('docker-compose', args);

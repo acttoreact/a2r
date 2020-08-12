@@ -34,6 +34,9 @@
       ],
       "model/*": [
         ".a2r/proxy/model/*"
+      ],
+      "a2r/login": [
+        ".a2r/proxy/api/login"
       ]
     }
   },

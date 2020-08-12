@@ -36,5 +36,3 @@ export const mongoUrlParam = 'MONGO_URL';
  * Name of environment variable for Mongo DB name
  */
 export const mongoDbNameParam = 'DB_NAME';
-
-export const secretKey = process.env.SECRET_KEY || 'a2r_secret_key';
