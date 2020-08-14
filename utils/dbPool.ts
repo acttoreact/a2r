@@ -15,8 +15,8 @@ const options: MongoClientOptions = {
 
 const clientPromise = new Promise<Db>((resolve, reject): void => {
   if (!url) {
-    out.error('No Mongo URL is defined at MONGO_URL environment variable');
-    return reject('No Mongo URL is defined at MONGO_URL environment variable');
+    out.warn('No Mongo URL is defined at MONGO_URL environment variable');
+    return resolve();
   }
   out.info(`Connecting to mongo server at ${url}`);
   MongoClient.connect(url, options, (err, client): void => {

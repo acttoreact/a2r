@@ -62,7 +62,7 @@
         "selector": "property",
         "format": ["camelCase"],
         "leadingUnderscore": "allow"
-      }
+      },
       {
         "selector": "typeLike",
         "format": ["PascalCase"]
