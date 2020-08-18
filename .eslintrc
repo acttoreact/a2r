@@ -38,6 +38,7 @@
     }
   },
   "rules": {
+    "camelcase": "off",
     "no-unused-vars": "off",
     "no-plusplus": "off",
     "no-underscore-dangle": "off",

@@ -123,7 +123,9 @@ export interface DockerComposeService {
 /**
  * Services dictionary for docker-compose
  */
-export type DockerComposeServices = {[key: string]: DockerComposeService};
+export interface DockerComposeServices {
+  [key: string]: DockerComposeService;
+}
 
 /**
  * Volume options info for docker-compose
@@ -139,13 +141,16 @@ export interface DockerComposeVolumeOptions {
  */
 export interface DockerComposeVolume {
   driver: 'local';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   driver_opts: DockerComposeVolumeOptions;
 }
 
 /**
  * Volumes dictionary for docker-compose
  */
-export type DockerComposeVolumes = {[key: string]: DockerComposeVolume};
+export interface DockerComposeVolumes {
+  [key: string]: DockerComposeVolume;
+}
 
 /**
  * Info for docker-compose
