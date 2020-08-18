@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import generateId from 'shortid';
 
 import isClient from '../../tools/isClient';
