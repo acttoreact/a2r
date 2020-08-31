@@ -66,6 +66,7 @@ const dev = async (): Promise<void> => {
 
     const watcherEnv = path.resolve(watcherInternalPath, '.env');
     const watcherParams = [
+      `COOKIE_KEY=${cookieKey}`,
       `USER_TOKEN_KEY=${userTokenKey}`,
       `PROXIES=${projects
         .map(({ path: projectPath }) => projectPath)
