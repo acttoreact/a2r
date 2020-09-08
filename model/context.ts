@@ -42,4 +42,8 @@ export interface ServerContext {
    * The port the server is listening to
    */
   port: number;
+  /**
+   * REST API prefix, should be used for any custom API endpoint
+   */
+  apiPrefix: string;
 }
