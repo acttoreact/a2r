@@ -60,7 +60,7 @@ export interface DockerInfo {
   name: string;
   imageName: string;
   lastUpdate: Date;
-  env?: {[key: string]: string};
+  env?: {[key: string]: string | number};
 }
 
 /**
