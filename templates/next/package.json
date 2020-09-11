@@ -16,6 +16,7 @@
   "homepage": "https://www.a2r.com",
   "dependencies": {
     "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
     "js-cookie": "^2.2.1",
     "next": "^9.4.4",
     "react": "^16.9.0",

@@ -16,10 +16,9 @@ export default (): JSX.Element => {
   return (
     <>
       <Head>
-        <title>Hello BinPar!</title>
         <link rel="stylesheet" type="text/css" href="/styles.css" />
       </Head>
-      <h1>Hello BinPar</h1>
+      <h1>Hello, A2R user!</h1>
     </>
   );
 };

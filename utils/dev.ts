@@ -3,11 +3,11 @@ import { spawn } from 'child_process';
 import { out } from '@a2r/telemetry';
 import { writeFile, ensureDir } from '@a2r/fs';
 
-import { getSettings, getPackageJson } from './settings';
+import { getSettings } from './settings';
 import getDockerCompose from './getDockerCompose';
 import getProjectPath from './getProjectPath';
+import getCleanProjectName from './getCleanProjectName';
 import { log, terminalCommand } from './colors';
-import cleanText from '../tools/cleanText';
 
 import { mongoUrlParam, mongoDbNameParam } from '../settings';
 
@@ -20,17 +20,7 @@ const dev = async (): Promise<void> => {
   if (projects.length) {
     const mainProjectPath = await getProjectPath();
     const a2rInternalPath = path.resolve(mainProjectPath, '.a2r');
-    const packageJson = await getPackageJson(mainProjectPath);
-    const { name: projectName } = packageJson;
-    const cleanProjectName = cleanText(
-      projectName,
-      false,
-      true,
-      true,
-      false,
-      '',
-      '-',
-    );
+    const cleanProjectName = await getCleanProjectName(mainProjectPath);
     const cookieKey = `${cleanProjectName}_sessionId`;
     const userTokenKey = `${cleanProjectName}_userToken`;
     const devServerInternalPath = path.resolve(a2rInternalPath, 'dev-server');

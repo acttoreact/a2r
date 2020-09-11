@@ -3,6 +3,7 @@ import { out } from '@a2r/telemetry';
 import { readFile, writeFile } from '@a2r/fs'
 
 import getProjectPath from './getProjectPath';
+import getCleanProjectName from './getCleanProjectName';
 import copyFilesFromTemplate from './copyFilesFromTemplate';
 import { log, terminalCommand, fullPath } from './colors';
 import { addProject } from './settings';
@@ -28,6 +29,10 @@ const add = async (project: 'next' | 'expo' | 'service', destination?: string): 
     const destPath = path.resolve(projectPath, destFolder);
     log(`Adding ${project} project at ${fullPath(destPath)}...`);
     await copyFilesFromTemplate(project, destPath);
+    const cleanProjectName = getCleanProjectName(projectPath);
+    const envFilePath = path.resolve(destPath, '.env');
+    const envFileContent = `COOKIE_KEY=${cleanProjectName}_sessionId\nUSER_TOKEN_KEY=${cleanProjectName}_userToken`;
+    await writeFile(envFilePath, envFileContent);
     const packageJsonPath = path.resolve(destPath, 'package.json');
     const packageJsonContent = await readFile(packageJsonPath, 'utf8');
     const packageJsonInfo = JSON.parse(packageJsonContent) as PackageJson;

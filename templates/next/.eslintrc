@@ -6,7 +6,8 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "prettier/@typescript-eslint"
+    "prettier/@typescript-eslint",
+    "prettier/react"
   ],
   "settings": {
     "react": {
@@ -28,7 +29,6 @@
     "no-underscore-dangle": "off",
     "import/extensions": "off",
     "react/jsx-filename-extension": [1, { "extensions": ["tsx"] }],
-    "react/no-unused-prop-types": "off",
     "@typescript-eslint/naming-convention": [
       "error",
       {
@@ -37,7 +37,17 @@
       },
       {
         "selector": "variable",
-        "format": ["camelCase", "UPPER_CASE"]
+        "format": ["camelCase", "UPPER_CASE", "PascalCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "property",
+        "format": ["camelCase"],
+        "leadingUnderscore": "allow",
+        "filter": {
+          "regex": "^(__html|_html)$",
+          "match": false
+        }
       },
       {
         "selector": "parameter",
@@ -47,8 +57,16 @@
       {
         "selector": "typeLike",
         "format": ["PascalCase"]
+      },
+      {
+        "selector": "enumMember",
+        "format": ["PascalCase"]
       }
     ],
+    "react/jsx-pascal-case": [2, { "allowAllCaps": false }],
+    "react/require-default-props": "off",
+    "react/jsx-curly-newline": "off",
+    "react/no-unused-prop-types": "off",
     "@typescript-eslint/explicit-member-accessibility": [
       "error",
       { "overrides": { "constructors": "no-public" } }

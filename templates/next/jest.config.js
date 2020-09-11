@@ -1,4 +1,4 @@
-const testRegex = '(/tests/.*|(\\.|/)(test|spec))\\.(jsx?|js?|tsx?|ts?)$';
+const testRegex = '(/test/.*|(\\.|/)(tests|spec))\\.(jsx?|js?|tsx?|ts?)$';
 
 module.exports = {
   testRegex,
