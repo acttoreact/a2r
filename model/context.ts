@@ -15,6 +15,14 @@ export interface A2RContext {
    * User info stored in user token (may be extended by user and returned in `user.login` API method)
    */
   userInfo?: A2RUserTokenInfo;
+  /**
+   * Client IPs (could be more than one if connecting through proxy and headers set in nginx)
+   */
+  ips: string[];
+  /**
+   * Referer URL for incoming connection
+   */
+  referer: string;
 }
 
 /**
