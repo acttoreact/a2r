@@ -1,9 +1,13 @@
-log/
-tests/
+/.vscode/
+/coverage/
+/node_modules/
+/log/
+/test/
 /.eslintrc
 /.eslintignore
 /.prettierrc
 /.prettierignore
+/.travis.yml
 /jsdoc.json
 /README.md
 /tsconfig.json
