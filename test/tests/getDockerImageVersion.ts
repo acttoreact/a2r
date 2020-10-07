@@ -4,7 +4,7 @@
 
 import getDockerImageVersion from '../../utils/getDockerImageVersion';
 
-const regEx = /^version-\d\.\d\.\d(-dev)?$/;
+const regEx = /^version-\d+\.\d+\.\d+(-dev)?$/;
 
 test('Get docker image version', async (): Promise<void> => {
   const version = await getDockerImageVersion('watcher');

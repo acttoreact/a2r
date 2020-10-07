@@ -15,7 +15,7 @@ test('Template contents must include .gitignore and similar files', async (): Pr
   const a2rTemplatePath = path.resolve(__dirname, '../../', templatesPath, 'a2r');
   const files = await readDir(a2rTemplatePath);
   console.log(files);
-  expect(files).toContain('.gitignore');
+  expect(files).toContain('gitignore');
 });
 
 test('Copying files from template should copy .gitignore', async (): Promise<void> => {

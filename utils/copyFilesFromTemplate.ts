@@ -7,7 +7,7 @@ import {
   templatesFolders,
   mainTemplateFolder,
 } from '../settings';
-import { log } from './colors';
+import { log, fullPath } from './colors';
 import getFrameworkPath from './getFrameworkPath';
 
 /**
@@ -18,6 +18,7 @@ const checkAndRenameGitIgnore = async (destPath: string): Promise<void> => {
   const gitIgnorePath = path.resolve(destPath, 'gitignore');
   if (await exists(gitIgnorePath)) {
     const rightGitIgnorePath = path.resolve(destPath, '.gitignore');
+    log(`Renaming ${fullPath(gitIgnorePath)} to ${fullPath(rightGitIgnorePath)}...`);
     await rename(gitIgnorePath, rightGitIgnorePath);
   }
 };

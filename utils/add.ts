@@ -29,7 +29,7 @@ const add = async (project: 'next' | 'expo' | 'service', destination?: string): 
     const destPath = path.resolve(projectPath, destFolder);
     log(`Adding ${project} project at ${fullPath(destPath)}...`);
     await copyFilesFromTemplate(project, destPath);
-    const cleanProjectName = getCleanProjectName(projectPath);
+    const cleanProjectName = await getCleanProjectName(projectPath);
     const envFilePath = path.resolve(destPath, '.env');
     const envFileContent = `COOKIE_KEY=${cleanProjectName}_sessionId\nUSER_TOKEN_KEY=${cleanProjectName}_userToken`;
     await writeFile(envFilePath, envFileContent);
