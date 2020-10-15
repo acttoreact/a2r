@@ -10,6 +10,7 @@ import init from './init';
 import update from './update';
 import add from './add';
 import dev from './dev';
+import stop from './stop';
 
 const options = args(commandLineRules);
 
@@ -29,6 +30,8 @@ if (options.help) {
       } else if (options.dev) {
         const [force] = options.dev;
         await dev(force === 'force');
+      } else if (options.stop) {
+        await stop();
       } else {
         out.warn('Unknown or missing option');
         write(`${commandLineUsage(commandLineHelp)}\n\n`);
