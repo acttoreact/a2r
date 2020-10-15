@@ -1,5 +1,7 @@
 import path from 'path';
 import { spawn } from 'child_process';
+import getPort from 'get-port';
+import chalk from 'chalk';
 import { out } from '@a2r/telemetry';
 import { writeFile, ensureDir } from '@a2r/fs';
 
@@ -14,7 +16,7 @@ import { mongoUrlParam, mongoDbNameParam } from '../settings';
 /**
  * Temporary `dev` command that will run all needed dockers for solution
  */
-const dev = async (): Promise<void> => {
+const dev = async (force?: boolean): Promise<void> => {
   const settings = await getSettings();
   const { projects, devServer, watcher, db } = settings;
   if (projects.length) {
@@ -49,9 +51,21 @@ const dev = async (): Promise<void> => {
       // devServerParams.push(`${mongoUrlParam}=mongodb://${cleanProjectName}-db:27017`);
       // devServerParams.push(`${mongoDbNameParam}=${dbName}`);
     }
+    const desiredServerPort = parseInt((devServer.env?.PORT || '') as string, 10);
+    const serverPort = await getPort({ port: desiredServerPort || undefined });
+    if (desiredServerPort && desiredServerPort !== serverPort) {
+      log(
+        `Port ${chalk.whiteBright(desiredServerPort)} is already in use, starting server at port ${chalk.greenBright(serverPort)}`,
+      );
+    }
     Object.entries(devServer.env || {}).forEach(([key, value]) => {
-      devServerParams.push(`${key}=${value}`);
+      if (key === 'PORT') {
+        devServerParams.push(`PORT=${serverPort}`);
+      } else {
+        devServerParams.push(`${key}=${value}`);
+      }
     });
+    const serverUrl = `localhost:${serverPort}`;
     await writeFile(devServerEnv, devServerParams.join('\n'));
 
     const watcherEnv = path.resolve(watcherInternalPath, '.env');
@@ -61,6 +75,7 @@ const dev = async (): Promise<void> => {
       `PROXIES=${projects
         .map(({ path: projectPath }) => projectPath)
         .join(',')}`,
+      `SEVER_URL=${serverUrl}`,
     ];
     Object.entries(watcher.env || {}).forEach(([key, value]) => {
       watcherParams.push(`${key}=${value}`);
@@ -73,6 +88,7 @@ const dev = async (): Promise<void> => {
       mainProjectPath,
       devServerInternalPath,
       watcherInternalPath,
+      serverPort,
       // dbDataInternalPath,
     );
     if (dockerCompose) {
@@ -83,6 +99,9 @@ const dev = async (): Promise<void> => {
       );
       await writeFile(dockerComposePath, dockerCompose);
       const args = ['-f', dockerComposePath, 'up', '--force-recreate'];
+      if (force) {
+        args.push('--remove-orphans');
+      }
       log(
         `Running docker-compose: ${terminalCommand(
           `docker-compose ${args.join(' ')}`,
@@ -92,15 +111,6 @@ const dev = async (): Promise<void> => {
       const command = spawn('docker-compose', args, { stdio: 'pipe' });
       command.stdout.pipe(process.stdout);
       command.stderr.pipe(process.stdout);
-      // const res = await exec('docker-compose', args);
-      // log(`Command response:\n${JSON.stringify(res, null, 2)}`);
-      // await exec(
-      //   'docker-compose',
-      //   ['-f', dockerComposePath, 'logs', '-f'],
-      //   { stdio: 'pipe' },
-      // );
-      // const res = await exec('docker-compose', args, { stdio: 'pipe' });
-      // log(`Command response\n${JSON.stringify(res)}`);
     } else {
       out.error(
         'Something went wrong, empty docker-compose has been generated',

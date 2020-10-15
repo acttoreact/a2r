@@ -24,6 +24,11 @@ export const commandLineRules = [
   },
   {
     name: 'dev',
+    type: String,
+    multiple: true,
+  },
+  {
+    name: 'stop',
     type: Boolean,
   },
   {
@@ -77,8 +82,13 @@ export const commandLineHelp = [
       },
       {
         name: 'dev',
+        typeLabel: '[{underline force}]',
+        description: `Runs watcher and server`,
+      },
+      {
+        name: 'stop',
         typeLabel: ' ',
-        description: `Runs watcher, server and existing projects`,
+        description: `Stops watcher and server`,
       },
       {
         name: 'version',
