@@ -34,12 +34,15 @@
       ],
       "model/*": [
         ".a2r/proxy/model/*"
+      ],
+      "a2r/auth": [
+        ".a2r/proxy/api/auth"
       ]
     }
   },
   "exclude": [
     "node_modules",
-    "tests/**/*.ts",
+    "test/**/*.ts",
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "**/*.test.ts",

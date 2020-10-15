@@ -1,14 +1,27 @@
 import path from 'path';
 import { out } from '@a2r/telemetry';
-import { copyContents } from '@a2r/fs';
+import { copyContents, exists, rename } from '@a2r/fs';
 
 import {
   templatesPath,
   templatesFolders,
   mainTemplateFolder,
 } from '../settings';
-import { log } from './colors';
+import { log, fullPath } from './colors';
 import getFrameworkPath from './getFrameworkPath';
+
+/**
+ * Checks if destination path has `gitignore` file and renames it to right `.gitignore` name
+ * @param destPath Destination path
+ */
+const checkAndRenameGitIgnore = async (destPath: string): Promise<void> => {
+  const gitIgnorePath = path.resolve(destPath, 'gitignore');
+  if (await exists(gitIgnorePath)) {
+    const rightGitIgnorePath = path.resolve(destPath, '.gitignore');
+    log(`Renaming ${fullPath(gitIgnorePath)} to ${fullPath(rightGitIgnorePath)}...`);
+    await rename(gitIgnorePath, rightGitIgnorePath);
+  }
+};
 
 /**
  * Copies files from template to destination path
@@ -32,6 +45,7 @@ const copyFilesFromTemplate = async (
       templateFolder,
     );
     await copyContents(templatePath, destPath);
+    await checkAndRenameGitIgnore(destPath);
   } else {
     out.error(`No template path found for project ${project}`);
   }

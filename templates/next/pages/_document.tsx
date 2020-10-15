@@ -35,7 +35,7 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+          <link rel="stylesheet" type="text/css" href="/css/reset.css" />
         </Head>
         <body>
           <Main />

@@ -4,8 +4,8 @@ import exec from '../tools/exec';
 
 const checkLibrary = async (library: string): Promise<boolean> => {
   try {
-    const { out: checkOut } = await exec(library, ['-v']);
-    const { out: exitCode } = await exec('echo', ['$?']);
+    const { stdout: checkOut } = await exec(library, ['-v']);
+    const { stdout: exitCode } = await exec('echo', ['$?']);
     const check = exitCode !== '0';
     if (!check) {
       out.error(checkOut);

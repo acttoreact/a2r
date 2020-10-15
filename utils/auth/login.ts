@@ -4,7 +4,6 @@ import { compare } from 'bcryptjs';
 import { getCollection } from '../dbPool';
 
 import { LoginResponse, User } from '../../model';
-import createToken from './createToken';
 
 /**
  * Log ins user
@@ -30,8 +29,7 @@ const login = async (email: string, password: string): Promise<LoginResponse> =>
       return { ok: false, error: 'Password is incorrect' };
     }
     const { _id, roles } = user;
-    const token = createToken({ _id, roles });
-    return { ok: true, token };
+    return { ok: true, info: { _id, roles } };
   } catch (ex) {
     out.error(`Error at user login: ${ex.stack || ex.message}`, ex);
     return { ok: false, error: ex.stack || ex.message };

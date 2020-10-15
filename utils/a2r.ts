@@ -27,7 +27,8 @@ if (options.help) {
       } else if (options.init) {
         await init();
       } else if (options.dev) {
-        await dev();
+        const [force] = options.dev;
+        await dev(force === 'force');
       } else {
         out.warn('Unknown or missing option');
         write(`${commandLineUsage(commandLineHelp)}\n\n`);

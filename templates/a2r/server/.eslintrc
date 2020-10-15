@@ -1,48 +1,39 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint"
-  ],
+  "plugins": ["import", "@typescript-eslint"],
   "extends": [
     "airbnb",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "prettier/@typescript-eslint"
+    "prettier/@typescript-eslint",
+    "prettier/react"
   ],
   "settings": {
     "react": {
       "version": "999.999.999"
     },
-    "import/extensions": [
-      ".js",
-      ".jsx",
-      ".ts",
-      ".tsx"
-    ],
+    "import/extensions": [".ts", ".tsx"],
     "import/parsers": {
-      "@typescript-eslint/parser": [
-        ".ts",
-        ".tsx"
-      ]
+      "@typescript-eslint/parser": [".ts", ".tsx"]
     },
     "import/resolver": {
-      "node": {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
+      "typescript": {
+        "project": {}
       }
     }
   },
   "rules": {
-    "camelcase": "off",
     "no-unused-vars": "off",
     "no-plusplus": "off",
     "no-underscore-dangle": "off",
+    "camelcase": "off",
     "import/extensions": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      { "packageDir": ["./", "../"] }
+    ],
+    "react/jsx-filename-extension": [1, { "extensions": ["tsx"] }],
     "@typescript-eslint/naming-convention": [
       "error",
       {
@@ -51,6 +42,11 @@
       },
       {
         "selector": "variable",
+        "format": ["camelCase", "UPPER_CASE", "PascalCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "property",
         "format": ["camelCase", "UPPER_CASE"],
         "leadingUnderscore": "allow"
       },
@@ -60,15 +56,18 @@
         "leadingUnderscore": "allow"
       },
       {
-        "selector": "property",
-        "format": ["camelCase"],
-        "leadingUnderscore": "allow"
-      },
-      {
         "selector": "typeLike",
         "format": ["PascalCase"]
+      },
+      {
+        "selector": "enumMember",
+        "format": ["PascalCase", "camelCase"]
       }
     ],
+    "react/jsx-pascal-case": [2, { "allowAllCaps": false }],
+    "react/require-default-props": "off",
+    "react/jsx-curly-newline": "off",
+    "react/no-unused-prop-types": "off",
     "@typescript-eslint/explicit-member-accessibility": [
       "error",
       { "overrides": { "constructors": "no-public" } }

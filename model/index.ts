@@ -19,19 +19,37 @@ export interface CommandResponse {
    * @type {number}
    * @memberof CommandResponse
    */
-  code: number;
+  exitCode: number | null;
+  /**
+   * Command exit code
+   * @type {number}
+   * @memberof CommandResponse
+   */
+  closeCode: number | null;
   /**
    * Output from `stdout`
    * @type {string}
    * @memberof CommandResponse
    */
-  out: string;
+  stdout: string;
   /**
    * Error (if any)
    * @type {(Error | null)}
    * @memberof CommandResponse
    */
   error: Error | null;
+  /**
+   * Signal received on exit event (if any)
+   * @type {(NodeJS.Signals | null)}
+   * @memberof CommandResponse
+   */
+  exitSignal: NodeJS.Signals | null;
+  /**
+   * Signal received on close event (if any)
+   * @type {(NodeJS.Signals | null)}
+   * @memberof CommandResponse
+   */
+  closeSignal: NodeJS.Signals | null;
 };
 
 /**
@@ -42,6 +60,7 @@ export interface DockerInfo {
   name: string;
   imageName: string;
   lastUpdate: Date;
+  env?: {[key: string]: string | number};
 }
 
 /**
@@ -68,6 +87,7 @@ export interface ProjectInfo {
 export interface DatabaseInfo {
   url: string;
   name: string;
+  version?: string;
 }
 
 /**
@@ -87,6 +107,58 @@ export interface SolutionInfo {
  */
 export interface PackageJson {
   name: string;
+}
+
+/**
+ * Service info for docker-compose
+ */
+export interface DockerComposeService {
+  image: string;
+  volumes?: string[];
+  ports?: string[];
+  tty?: boolean;
+  restart?: 'no' | 'always' | 'on-failure' | 'unless-stopped';
+}
+
+/**
+ * Services dictionary for docker-compose
+ */
+export interface DockerComposeServices {
+  [key: string]: DockerComposeService;
+}
+
+/**
+ * Volume options info for docker-compose
+ */
+export interface DockerComposeVolumeOptions {
+  type: 'none';
+  device: string;
+  o: 'bind';
+}
+
+/**
+ * Volume info for docker-compose
+ */
+export interface DockerComposeVolume {
+  driver: 'local';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  driver_opts: DockerComposeVolumeOptions;
+}
+
+/**
+ * Volumes dictionary for docker-compose
+ */
+export interface DockerComposeVolumes {
+  [key: string]: DockerComposeVolume;
+}
+
+/**
+ * Info for docker-compose
+ */
+export interface DockerCompose {
+  version: string;
+  services: DockerComposeServices;
+  volumes: DockerComposeVolumes;
 }
 
 /**

@@ -20,9 +20,14 @@ export type A2RUser = Omit<User, 'roles'>;
 export type NewA2RUser = Omit<A2RUser, '_id' | 'verified'>;
 
 /**
+ * Minimal user token info
+ */
+type UserTokenInfo = Pick<User, '_id'>;
+
+/**
  * User info stored in token
  */
-export type UserTokenInfo = Pick<User, '_id' | 'roles'>;
+export type A2RUserTokenInfo = UserTokenInfo & Partial<Pick<User, 'roles'>>;
 
 /**
  * Basic response
@@ -32,6 +37,9 @@ export interface Response {
   error?: string;
 }
 
+/**
+ * Login response
+ */
 export interface LoginResponse extends Response {
-  token?: string;
+  info?: A2RUserTokenInfo;
 }

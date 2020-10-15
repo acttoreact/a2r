@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import path from 'path';
 
 import getDockerImageVersion from './getDockerImageVersion';
@@ -35,13 +36,19 @@ const setup = async (projectPath: string, version: string): Promise<void> => {
       imageName: `${dockerHubRepository}/server-dev`,
       name: 'server-dev',
       url: 'http://localhost:4000',
+      env: {
+        PORT: 4000,
+      }
     },
     server: {
       version: serverVersion,
       lastUpdate: now,
       imageName: `${dockerHubRepository}/server`,
       name: 'server',
-      url: 'http://localhost:4000',
+      url: 'http://localhost:80',
+      env: {
+        PORT: 80,
+      }
     },
     watcher: {
       version: watcherVersion,

@@ -1,70 +1,121 @@
+import path from 'path';
+import { spawn } from 'child_process';
+import getPort from 'get-port';
+import chalk from 'chalk';
 import { out } from '@a2r/telemetry';
+import { writeFile, ensureDir } from '@a2r/fs';
 
-import { getSettings, getPackageJson } from './settings';
+import { getSettings } from './settings';
+import getDockerCompose from './getDockerCompose';
 import getProjectPath from './getProjectPath';
-import exec from '../tools/exec';
-import { log, fullPath, terminalCommand } from './colors';
+import getCleanProjectName from './getCleanProjectName';
+import { log, terminalCommand } from './colors';
 
 import { mongoUrlParam, mongoDbNameParam } from '../settings';
-
-const workDir = '/usr/src/app';
 
 /**
  * Temporary `dev` command that will run all needed dockers for solution
  */
-const dev = async (): Promise<void> => {
+const dev = async (force?: boolean): Promise<void> => {
   const settings = await getSettings();
-  const { watcher, devServer, projects, db } = settings;
+  const { projects, devServer, watcher, db } = settings;
   if (projects.length) {
     const mainProjectPath = await getProjectPath();
-    const packageJson = await getPackageJson(mainProjectPath);
-    const cookieKey = `${packageJson.name}_sessionId`;
-    log(`Running watchers and frameworks at ${fullPath(mainProjectPath)}`);
-    log(`Stopping running dockers...`);
-
-    const devServerName = `${devServer.name}-${packageJson.name}`;
-    const devServerImage = `${devServer.imageName}:${devServer.version}`;
-    log(`Starting server using ${devServerImage}...`);
-    await exec('docker', ['stop', devServerName]);
-    await exec('docker', ['rm', devServerName]);
-    const serverParams = [`COOKIE_KEY=${cookieKey}`];
-    if (db) {
-      const { url, name } = db;
-      serverParams.push(`${mongoUrlParam}=${url}`);
-      serverParams.push(`${mongoDbNameParam}=${name}`);
-    }
-    const serverEnv = serverParams.map((p) => `--env ${p}`).join(' ');
-    const serverVolumes = [
-      `-v ${mainProjectPath}/server/api:${workDir}/server/api`,
-      `-v ${mainProjectPath}/server/model:${workDir}/server/model`,
-      `-v ${mainProjectPath}/server/package.json:${workDir}/server/package.json`,
-    ];
-    const devServerCommand = `run -it -d ${serverVolumes.join(
-      ' ',
-    )} -p 4000:4000 ${serverEnv} --name ${devServerName} ${devServerImage}`;
-    log(`Starting server docker: docker ${devServerCommand}`);
-    await exec('docker', devServerCommand.split(' '));
-    log(`Server running as ${devServerName}`);
-
-    const watcherName = `${watcher.name}-${packageJson.name}`;
-    const watcherImage = `${watcher.imageName}:${watcher.version}`;
-    const proxies = `--env PROXIES=${projects
-      .map(({ path: projectPath }) => projectPath)
-      .join(',')}`;
-    const watcherVolumes = projects.map(
-      ({ path: projectPath }) =>
-        `-v ${mainProjectPath}/${projectPath}/.a2r/proxy:${workDir}/.a2r/${projectPath}`,
+    const a2rInternalPath = path.resolve(mainProjectPath, '.a2r');
+    const cleanProjectName = await getCleanProjectName(mainProjectPath);
+    const cookieKey = `${cleanProjectName}_sessionId`;
+    const userTokenKey = `${cleanProjectName}_userToken`;
+    const devServerInternalPath = path.resolve(a2rInternalPath, 'dev-server');
+    const watcherInternalPath = path.resolve(a2rInternalPath, 'watcher');
+    // const dbDataInternalPath = path.resolve(a2rInternalPath, 'db', 'data');
+    const devServerModules = path.resolve(
+      devServerInternalPath,
+      'node_modules',
     );
-    log(`Starting watcher using ${watcherImage}...`);
-    const watcherCommand = `run -it -d ${proxies} -v ${mainProjectPath}/server:${workDir}/server ${watcherVolumes.join(
-      ' ',
-    )} --name ${watcherName} ${watcherImage}`;
-    await exec('docker', ['stop', watcherName]);
-    await exec('docker', ['rm', watcherName]);
-    log(`Starting watcher docker: docker ${watcherCommand}`);
-    await exec('docker', watcherCommand.split(' '));
-    log(`Watcher running as ${watcherImage}...`);
-    log(`All dockers and projects are running`);
+    await ensureDir(devServerInternalPath);
+    await ensureDir(watcherInternalPath);
+    await ensureDir(devServerModules);
+
+    const devServerEnv = path.resolve(devServerInternalPath, '.env');
+    const devServerParams = [
+      `COOKIE_KEY=${cookieKey}`,
+      `USER_TOKEN_KEY=${userTokenKey}`,
+    ];
+    if (db && db.url && db.name) {
+      const { url, name } = db;
+      devServerParams.push(`${mongoUrlParam}=${url}`);
+      devServerParams.push(`${mongoDbNameParam}=${name}`);
+    } else {
+      // await ensureDir(dbDataInternalPath);
+      // const dbName = db && db.name ? db.name : cleanProjectName;
+      // devServerParams.push(`${mongoUrlParam}=mongodb://${cleanProjectName}-db:27017`);
+      // devServerParams.push(`${mongoDbNameParam}=${dbName}`);
+    }
+    const desiredServerPort = parseInt((devServer.env?.PORT || '') as string, 10);
+    const serverPort = await getPort({ port: desiredServerPort || undefined });
+    if (desiredServerPort && desiredServerPort !== serverPort) {
+      log(
+        `Port ${chalk.whiteBright(desiredServerPort)} is already in use, starting server at port ${chalk.greenBright(serverPort)}`,
+      );
+    }
+    Object.entries(devServer.env || {}).forEach(([key, value]) => {
+      if (key === 'PORT') {
+        devServerParams.push(`PORT=${serverPort}`);
+      } else {
+        devServerParams.push(`${key}=${value}`);
+      }
+    });
+    const serverUrl = `localhost:${serverPort}`;
+    await writeFile(devServerEnv, devServerParams.join('\n'));
+
+    const watcherEnv = path.resolve(watcherInternalPath, '.env');
+    const watcherParams = [
+      `COOKIE_KEY=${cookieKey}`,
+      `USER_TOKEN_KEY=${userTokenKey}`,
+      `PROXIES=${projects
+        .map(({ path: projectPath }) => projectPath)
+        .join(',')}`,
+      `SEVER_URL=${serverUrl}`,
+    ];
+    Object.entries(watcher.env || {}).forEach(([key, value]) => {
+      watcherParams.push(`${key}=${value}`);
+    });
+    await writeFile(watcherEnv, watcherParams.join('\n'));
+
+    const dockerCompose = getDockerCompose(
+      settings,
+      cleanProjectName,
+      mainProjectPath,
+      devServerInternalPath,
+      watcherInternalPath,
+      serverPort,
+      // dbDataInternalPath,
+    );
+    if (dockerCompose) {
+      const dockerComposePath = path.resolve(
+        mainProjectPath,
+        '.a2r',
+        'docker-compose.yml',
+      );
+      await writeFile(dockerComposePath, dockerCompose);
+      const args = ['-f', dockerComposePath, 'up', '--force-recreate'];
+      if (force) {
+        args.push('--remove-orphans');
+      }
+      log(
+        `Running docker-compose: ${terminalCommand(
+          `docker-compose ${args.join(' ')}`,
+        )}`,
+      );
+
+      const command = spawn('docker-compose', args, { stdio: 'pipe' });
+      command.stdout.pipe(process.stdout);
+      command.stderr.pipe(process.stdout);
+    } else {
+      out.error(
+        'Something went wrong, empty docker-compose has been generated',
+      );
+    }
   } else {
     out.warn(
       `You must add at least one project to solution before running ${terminalCommand(
