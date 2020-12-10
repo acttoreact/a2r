@@ -17,7 +17,7 @@ const copyProjectContentsToDocker = async (
   const files = await readDir(srcPath, { withFileTypes: true });
   await Promise.all(
     files
-      .filter((file) => file.name !== 'node_modules')
+      .filter((file) => file.name !== 'node_modules' && file.name !== '.env')
       .map((file) =>
         copyPathToDocker(
           path.resolve(srcPath, file.name),

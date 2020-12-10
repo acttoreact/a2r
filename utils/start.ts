@@ -11,6 +11,7 @@ import createDevServerDocker from './createDevServerDocker';
 import startWatchers from './watcher/start';
 import onProcessExit from './onProcessExit';
 import copyProjectContentsToDocker from './copyProjectContentsToDocker';
+import { checkForFrameworkOnServer } from './docker';
 
 import {
   devServerPath,
