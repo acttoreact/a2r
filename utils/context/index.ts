@@ -1,6 +1,6 @@
 import { A2RContext, CurrentContext } from '../../model/context';
 
-let context : CurrentContext = null;
+let context: CurrentContext = null;
 
 /**
  * Sets context for next API method to be executed

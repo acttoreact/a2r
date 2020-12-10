@@ -63,3 +63,9 @@ export const fileName = (name: string): string => chalk.cyan.bold(name);
  * @param command Terminal command
  */
 export const terminalCommand = (command: string): string => chalk.whiteBright(command);
+
+/**
+ * Logs styled method name
+ * @param src Method name
+ */
+export const method = (src: string): string => chalk.magenta(src);
