@@ -66,6 +66,7 @@ const start = async (): Promise<void> => {
       devSettings.server.dockerName,
       dockerServerPath,
     );
+    await checkForFrameworkOnServer(devSettings.server.dockerName);
     await startWatchers(mainProjectPath, devServerInternalPath);
 
     const dockerExecParams = [

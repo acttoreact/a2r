@@ -136,3 +136,35 @@ export const isDockerRunning = async (
   }
   return false;
 };
+
+/**
+ * Check for framework and uninstall if installed
+ * @param dockerName Docker name (dev-server)
+ */
+export const checkForFrameworkOnServer = async (
+  dockerName: string,
+): Promise<void> => {
+  const res = await exec('docker', [
+    'exec',
+    dockerName,
+    'npm',
+    'list',
+    'a2r',
+    '--depth=0',
+    '--prefix',
+    './server',
+    '|',
+    'grep',
+    'a2r',
+  ]);
+  if (res.stdout.trim()) {
+    await execa('docker', [
+      'exec',
+      'npm',
+      'uninstall',
+      'a2r',
+      '--prefix',
+      './server',
+    ]);
+  }
+};

@@ -34,10 +34,10 @@ const update = async (): Promise<void> => {
       stdout: process.stdout,
       stderr: process.stderr,
     });
-    log('>>> Updating server');
+    log(`>>> Uninstalling from server, just in case (would cause problems)`);
     await execa(
       'npm',
-      ['install', `a2r@${latestVersion}`, '--save-dev', '--prefix', './server'],
+      ['uninstall', `a2r`, '--save', '--prefix', './server'],
       {
         stdout: process.stdout,
         stderr: process.stderr,
