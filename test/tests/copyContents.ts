@@ -14,7 +14,6 @@ beforeAll(async (): Promise<void> => {
 test('Template contents must include .gitignore and similar files', async (): Promise<void> => {
   const a2rTemplatePath = path.resolve(__dirname, '../../', templatesPath, 'a2r');
   const files = await readDir(a2rTemplatePath);
-  console.log(files);
   expect(files).toContain('gitignore');
 });
 

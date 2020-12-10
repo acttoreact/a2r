@@ -23,13 +23,22 @@ export const commandLineRules = [
     type: Boolean,
   },
   {
+    name: 'start',
+    type: Boolean,
+  },
+  {
     name: 'dev',
     type: String,
     multiple: true,
   },
+  // {
+  //   name: 'stop',
+  //   type: Boolean,
+  // },
   {
-    name: 'stop',
-    type: Boolean,
+    name: 'npm',
+    type: String,
+    multiple: true,
   },
   {
     name: 'version',
@@ -49,7 +58,9 @@ export const commandLineRules = [
 export const commandLineHelp = [
   {
     header: framework,
-    content: `The isomorphic, reactive ${chalk.italic('framework')} that scales.`,
+    content: `The isomorphic, reactive ${chalk.italic(
+      'framework',
+    )} that scales.`,
   },
   {
     content: logo,
@@ -57,7 +68,8 @@ export const commandLineHelp = [
   },
   {
     header: 'Synopsis',
-    content: '$ npx a2r <command> [options]\n$ npx a2r --help\n$ npx a2r --add next www',
+    content:
+      '$ npx a2r <command> [options]\n$ npx a2r --help\n$ npx a2r --add next www',
   },
   {
     header: 'Commands',
@@ -77,18 +89,28 @@ export const commandLineHelp = [
       {
         name: 'add',
         alias: 'a',
-        typeLabel: '{underline project} {underline destination}',
-        description: `Creates project in solution ('next' or 'expo') at desired destination folder`,
+        typeLabel: '{underline project} {underline destination} [{underline baseProjectPath}]',
+        description: `Creates project in solution ('next', 'expo' or 'electron') at desired destination folder`,
       },
       {
-        name: 'dev',
-        typeLabel: '[{underline force}]',
+        name: 'start',
+        typeLabel: ' ',
         description: `Runs watcher and server`,
       },
       {
-        name: 'stop',
-        typeLabel: ' ',
-        description: `Stops watcher and server`,
+        name: 'dev',
+        typeLabel: '{underline projectPath}',
+        description: `Runs the project in that path in dev mode`,
+      },
+      // {
+      //   name: 'stop',
+      //   typeLabel: ' ',
+      //   description: `Stops watcher and server`,
+      // },
+      {
+        name: 'npm install',
+        typeLabel: '[{underline package[@version]}]',
+        description: `Install npm packages in working directory project and its docker (if at least created)`,
       },
       {
         name: 'version',

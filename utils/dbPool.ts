@@ -3,7 +3,7 @@ import { out } from '@a2r/telemetry';
 
 import { mongoUrlParam, mongoDbNameParam } from '../settings';
 
-const url = process.env[mongoUrlParam];
+const url = process.env[mongoUrlParam]!;
 const dbName = process.env[mongoDbNameParam];
 
 let mongoClient: MongoClient | null = null;
@@ -14,10 +14,6 @@ const options: MongoClientOptions = {
 };
 
 const clientPromise = new Promise<Db>((resolve, reject): void => {
-  if (!url) {
-    out.warn('No Mongo URL is defined at MONGO_URL environment variable');
-    return resolve();
-  }
   out.info(`Connecting to mongo server at ${url}`);
   MongoClient.connect(url, options, (err, client): void => {
     if (err) {

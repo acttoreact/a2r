@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Type used to make one or multiple interface keys optional
+ */
+export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
 /**
  * Response from terminal after executing command
  */
@@ -59,7 +65,6 @@ export interface DockerInfo {
   version: string;
   name: string;
   imageName: string;
-  lastUpdate: Date;
   env?: {[key: string]: string | number};
 }
 
@@ -67,19 +72,23 @@ export interface DockerInfo {
  * Server info
  */
 export interface ServerInfo extends DockerInfo {
-  url: string;
+  url?: string;
 }
 
 /**
  * Project info
  */
 export interface ProjectInfo {
-  version: string;
-  type: 'next' | 'expo' | 'service';
+  type: 'next' | 'expo' | 'electron';
   path: string;
-  port: number;
-  docker?: DockerInfo;
+  dockerName?: string;
+  dockerBase?: string;
+  dockerWorkingDir?: string;
+  baseProject?: string;
+  env?: {[key: string]: string | number};
 }
+
+export type RunningProjectInfo = WithOptional<Omit<Required<ProjectInfo>, 'env'>, 'baseProject'>;
 
 /**
  * Database info
@@ -98,8 +107,26 @@ export interface SolutionInfo {
   projects: ProjectInfo[];
   devServer: ServerInfo;
   server: ServerInfo;
-  watcher: DockerInfo;
   db?: DatabaseInfo;
+}
+
+/**
+ * Running server settings
+ */
+export interface ServerSettings {
+  port: number;
+  dockerName: string;
+  dockerImage: string;
+  serverPath: string;
+}
+
+/**
+ * Live settings (when running `a2r start`)
+ */
+export interface DevSettings {
+  server: ServerSettings;
+  keys: {[key: string]: string};
+  activeProjects: RunningProjectInfo[];
 }
 
 /**
@@ -107,6 +134,13 @@ export interface SolutionInfo {
  */
 export interface PackageJson {
   name: string;
+  productName?: string;
+  dependencies?: {[key: string]: string};
+  devDependencies?: {[key: string]: string};
+}
+
+export interface TsConfig {
+  compilerOptions: { [key: string]: any };
 }
 
 /**
@@ -160,10 +194,5 @@ export interface DockerCompose {
   services: DockerComposeServices;
   volumes: DockerComposeVolumes;
 }
-
-/**
- * Type used to make one or multiple interface keys optional
- */
-export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export * from './auth';

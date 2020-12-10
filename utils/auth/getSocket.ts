@@ -1,14 +1,14 @@
-import io from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 import isClient from '../../tools/isClient';
-import { getSettings } from '../settings';
+import { getSettings } from '../devSettings';
 
-let socket: SocketIOClient.Socket | null = null;
+let socket: Socket | null = null;
 
-const getSocket = async (): Promise<SocketIOClient.Socket> => {
+const getSocket = async (): Promise<Socket> => {
   if (!socket) {
     const settings = await getSettings();
-    socket = io(settings.devServer.url, {
+    socket = io(`localhost:${settings.server.port}`, {
       autoConnect: isClient(),
       path: '/ws',
     });
