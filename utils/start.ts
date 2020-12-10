@@ -1,0 +1,110 @@
+import path from 'path';
+import execa from 'execa';
+import { out } from '@a2r/telemetry';
+import { ensureDir } from '@a2r/fs';
+
+import { getSettings } from './settings';
+import getProjectPath from './getProjectPath';
+import getCleanProjectName from './getCleanProjectName';
+import { log, terminalCommand } from './colors';
+import createDevServerDocker from './createDevServerDocker';
+import startWatchers from './watcher/start';
+import onProcessExit from './onProcessExit';
+import copyProjectContentsToDocker from './copyProjectContentsToDocker';
+
+import {
+  devServerPath,
+  serverPath,
+  dockerServerPath,
+  projectsInternalPath,
+  cookieKeyKey,
+  userTokenKeyKey,
+} from '../settings';
+
+/**
+ * Temporary `dev` command that will run all needed dockers for solution
+ */
+const start = async (): Promise<void> => {
+  const settings = await getSettings();
+  const { projects } = settings;
+  if (projects.length) {
+    const mainProjectPath = await getProjectPath();
+    const mainServerPath = path.resolve(mainProjectPath, serverPath);
+    const a2rInternalPath = path.resolve(mainProjectPath, projectsInternalPath);
+    const cleanProjectName = await getCleanProjectName(mainProjectPath);
+    const cookieKey = `${cleanProjectName}_sessionId`;
+    const userTokenKey = `${cleanProjectName}_userToken`;
+
+    const devServerInternalPath = path.resolve(
+      mainProjectPath,
+      a2rInternalPath,
+      devServerPath,
+    );
+    const devServerModules = path.resolve(
+      devServerInternalPath,
+      'node_modules',
+    );
+    const devServerEnv = path.resolve(devServerInternalPath, '.env');
+    await ensureDir(devServerInternalPath);
+    await ensureDir(devServerModules);
+
+    const devSettings = await createDevServerDocker(
+      settings,
+      settings.devServer.name,
+      devServerModules,
+      devServerEnv,
+      [
+        [cookieKeyKey, cookieKey],
+        [userTokenKeyKey, userTokenKey],
+      ],
+    );
+
+    log(`Starting ${devSettings.server.dockerName} docker...`);
+    await execa('docker', ['start', devSettings.server.dockerName]);
+    await copyProjectContentsToDocker(
+      mainServerPath,
+      devSettings.server.dockerName,
+      dockerServerPath,
+    );
+    await startWatchers(mainProjectPath, devServerInternalPath);
+
+    const dockerExecParams = [
+      'exec',
+      '-t',
+      devSettings.server.dockerName,
+      'npm',
+      'run',
+      'dev',
+    ];
+
+    let killed = false;
+    const subProcess = execa('docker', dockerExecParams, {
+      stdout: process.stdout,
+      stderr: process.stderr,
+    });
+
+    process.once('SIGINT', (): void => {
+      killed = true;
+      onProcessExit(devSettings.server.dockerName).then(() => {
+        subProcess.kill();
+        process.exit(0);
+      });
+    });
+
+    try {
+      await subProcess;
+    } catch (ex) {
+      if (!killed) {
+        log(`Sub process error\n${ex.stack || ex.message}`);
+      }
+    }
+  } else {
+    out.warn(
+      `You must add at least one project to solution before running ${terminalCommand(
+        '--dev',
+      )} command`,
+    );
+  }
+};
+
+export default start;

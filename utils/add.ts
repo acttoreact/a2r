@@ -1,24 +1,34 @@
 import path from 'path';
+import execa from 'execa';
 import { out } from '@a2r/telemetry';
-import { readFile, writeFile } from '@a2r/fs'
+import { exists, readFile, writeFile } from '@a2r/fs';
+
+import { PackageJson, ProjectInfo, SolutionInfo, TsConfig } from '../model';
 
 import getProjectPath from './getProjectPath';
 import getCleanProjectName from './getCleanProjectName';
 import copyFilesFromTemplate from './copyFilesFromTemplate';
-import { log, terminalCommand, fullPath } from './colors';
+import { log, terminalCommand, fullPath, framework } from './colors';
 import { addProject } from './settings';
-import exec from '../tools/exec';
+import getLatestVersion from './getLatestVersion';
+import mergePackageJson from './mergePackageJson';
 
-import { templatesFolders } from '../settings';
-
-import { PackageJson, ProjectInfo, WithOptional } from '../model';
+import {
+  templatesFolders,
+  defaultDockerImage,
+  defaultDockerWorkDir,
+} from '../settings';
 
 /**
  * Adds component project to solution
  * @param project Project type
  * @param destination Destination folder
  */
-const add = async (project: 'next' | 'expo' | 'service', destination?: string): Promise<void> => {
+const add = async (
+  project: ProjectInfo['type'],
+  destination?: string,
+  baseProjectPath?: string,
+): Promise<void> => {
   const templateFolder = templatesFolders[project];
   if (templateFolder) {
     if (!destination) {
@@ -27,26 +37,89 @@ const add = async (project: 'next' | 'expo' | 'service', destination?: string): 
     const projectPath = await getProjectPath();
     const destFolder = destination || project;
     const destPath = path.resolve(projectPath, destFolder);
-    log(`Adding ${project} project at ${fullPath(destPath)}...`);
-    await copyFilesFromTemplate(project, destPath);
-    const cleanProjectName = await getCleanProjectName(projectPath);
-    const envFilePath = path.resolve(destPath, '.env');
-    const envFileContent = `COOKIE_KEY=${cleanProjectName}_sessionId\nUSER_TOKEN_KEY=${cleanProjectName}_userToken`;
-    await writeFile(envFilePath, envFileContent);
-    const packageJsonPath = path.resolve(destPath, 'package.json');
-    const packageJsonContent = await readFile(packageJsonPath, 'utf8');
-    const packageJsonInfo = JSON.parse(packageJsonContent) as PackageJson;
-    packageJsonInfo.name = destFolder;
-    await writeFile(packageJsonPath, JSON.stringify(packageJsonInfo));
-    log(`Running ${terminalCommand(`npm install`)}...`);
-    await exec('npm', ['install'], { cwd: destPath });
-    const projectInfo: WithOptional<ProjectInfo, 'port'> = {
-      version: '1.0.0',
-      type: project,
-      path: destFolder,
-    };
-    await addProject(projectInfo);
-    log(`Project created at ${fullPath(destPath)}`);
+    let proceed = true;
+    if (await exists(destPath)) {
+      out.error(
+        `Can't add project. Folder ${fullPath(destPath)} already exists`,
+      );
+      proceed = false;
+    }
+    const baseProject = path.resolve(projectPath, baseProjectPath || '');
+    if (proceed && project === 'electron') {
+      if (!baseProjectPath) {
+        out.error('Electron projects needs a base project path (Next project)');
+        proceed = false;
+      }
+      if (proceed && !(await exists(baseProject))) {
+        out.error(
+          `Provided base project path (${fullPath(
+            baseProject,
+          )}) for Electron project doesn't exist`,
+        );
+        proceed = false;
+      }
+    }
+    if (proceed) {
+      log(`Adding ${project} project at ${fullPath(destPath)}...`);
+      await copyFilesFromTemplate(project, destPath);
+      const cleanProjectName = await getCleanProjectName(projectPath);
+      const packageJsonPath = path.resolve(destPath, 'package.json');
+      const packageJsonContent = await readFile(packageJsonPath, 'utf8');
+      const packageJsonInfo = JSON.parse(packageJsonContent) as PackageJson;
+      packageJsonInfo.name = destFolder;
+      if (project === 'electron') {
+        packageJsonInfo.productName = destFolder;
+      }
+      await writeFile(
+        packageJsonPath,
+        JSON.stringify(packageJsonInfo, null, 2),
+      );
+      if (project === 'electron') {
+        await mergePackageJson(
+          packageJsonPath,
+          path.resolve(baseProject, 'package.json'),
+        );
+        const tsConfigPath = path.resolve(
+          destPath,
+          'renderer',
+          'tsconfig.json',
+        );
+        const tsConfigContent = await readFile(tsConfigPath, 'utf8');
+        const tsConfigInfo = JSON.parse(tsConfigContent) as TsConfig;
+        tsConfigInfo.compilerOptions.rootDirs = [
+          './',
+          `../../${baseProjectPath}`,
+        ];
+        await writeFile(tsConfigPath, JSON.stringify(tsConfigInfo, null, 2));
+      }
+      log(`Running ${terminalCommand(`npm install`)}...`);
+      await execa('npm', ['install'], {
+        stdout: process.stdout,
+        stderr: process.stderr,
+        cwd: destPath,
+      });
+      const latestVersion = await getLatestVersion();
+      log(`Installing ${framework} as a project dev dependency...`);
+      await execa('npm', ['install', `a2r@${latestVersion}`, '--save-dev'], {
+        stdout: process.stdout,
+        stderr: process.stderr,
+        cwd: destPath,
+      });
+      const projectInfo: SolutionInfo['projects'][0] = {
+        type: project,
+        path: destFolder,
+      };
+      if (project === 'next') {
+        projectInfo.dockerBase = defaultDockerImage;
+        projectInfo.dockerName = `${cleanProjectName}-${destFolder}`;
+        projectInfo.dockerWorkingDir = defaultDockerWorkDir;
+      }
+      if (project === 'electron') {
+        projectInfo.baseProject = baseProjectPath;
+      }
+      await addProject(projectInfo);
+      log(`Project created at ${fullPath(destPath)}`);
+    }
   } else {
     out.error(
       `Unknown option: ${project}. Available options are ${Object.keys(

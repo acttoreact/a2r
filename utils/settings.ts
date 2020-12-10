@@ -1,21 +1,44 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import path from 'path';
 import { writeFile, ensureDir, readFile } from '@a2r/fs';
+
+import { SolutionInfo, PackageJson, ServerInfo } from '../model';
 
 import { log } from './colors';
 import getProjectPath from './getProjectPath';
 
-import { SolutionInfo, ProjectInfo, PackageJson, WithOptional } from '../model';
+/**
+ * Default dev server info
+ */
+export const defaultDevServer: Required<Pick<ServerInfo, 'name' | 'env'>> = {
+  name: 'server-dev',
+  env: {
+    PORT: 4000,
+  },
+};
+
+/**
+ * Default server info
+ */
+export const defaultServer: Required<Pick<ServerInfo, 'name' | 'env'>> = {
+  name: 'server',
+  env: {
+    PORT: 80,
+  },
+};
 
 /**
  * Gets `package.json` content from main project path
  * @param projectPath Main project path
  */
-export const getPackageJson = async (projectPath?: string): Promise<PackageJson> => {
-  const mainProjectPath = projectPath || await getProjectPath();
+export const getPackageJson = async (
+  projectPath?: string,
+): Promise<PackageJson> => {
+  const mainProjectPath = projectPath || (await getProjectPath());
   const packageJsonPath = path.resolve(mainProjectPath, 'package.json');
   const packageJsonContent = await readFile(packageJsonPath, 'utf8');
   return JSON.parse(packageJsonContent) as PackageJson;
-}
+};
 
 /**
  * Gets project settings
@@ -32,8 +55,11 @@ export const getSettings = async (): Promise<SolutionInfo> => {
  * @param info Info to save
  * @param projectPath Main project path
  */
-export const saveSettings = async (info: SolutionInfo, projectPath?: string): Promise<SolutionInfo> => {
-  const mainProjectPath = projectPath || await getProjectPath();
+export const saveSettings = async (
+  info: SolutionInfo,
+  projectPath?: string,
+): Promise<SolutionInfo> => {
+  const mainProjectPath = projectPath || (await getProjectPath());
   const settingsPath = path.resolve(mainProjectPath, '.a2r', 'settings.json');
   await writeFile(settingsPath, JSON.stringify(info, null, 2));
   return info;
@@ -43,23 +69,11 @@ export const saveSettings = async (info: SolutionInfo, projectPath?: string): Pr
  * Adds component project to solution
  * @param info Project info
  */
-export const addProject = async (info: WithOptional<ProjectInfo, 'port'>): Promise<SolutionInfo> => {
+export const addProject = async (
+  info: SolutionInfo['projects'][0],
+): Promise<SolutionInfo> => {
   const settings = await getSettings();
-  const projectInfo: ProjectInfo = {
-    ...info,
-    port: Math.max(...settings.projects.map(({ port }) => port), 2999) + 1,
-  }
-  settings.projects.push(projectInfo);
-  return saveSettings(settings);
-};
-
-/**
- * Updates framework version in settings
- * @param version Framework version
- */
-export const updateFrameworkVersion = async (version: string): Promise<SolutionInfo> => {
-  const settings = await getSettings();
-  settings.version = version;
+  settings.projects.push(info);
   return saveSettings(settings);
 };
 
@@ -68,7 +82,10 @@ export const updateFrameworkVersion = async (version: string): Promise<SolutionI
  * @param projectPath Main project path
  * @param settings Initial settings
  */
-export const setupSettings = async (projectPath: string, settings: SolutionInfo): Promise<void> => {
+export const setupSettings = async (
+  projectPath: string,
+  settings: SolutionInfo,
+): Promise<void> => {
   log(`Initializing settings...`);
   const settingsPath = path.resolve(projectPath, '.a2r', 'settings.json');
   const containerPath = path.dirname(settingsPath);
