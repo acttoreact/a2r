@@ -1,6 +1,6 @@
 import { A2RContext } from '../../model/context';
 
-import { getContext } from './';
+import { getContext } from '.';
 
 const useContext = (): A2RContext => {
   const context = getContext();

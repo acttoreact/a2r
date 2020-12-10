@@ -16,9 +16,12 @@ const getInitialProps = (
   if (!sessionId) {
     sessionId = getId();
     if (ctx.res) {
+      const protocol = ctx.req?.headers.referer.split('://').shift();
       ctx.res.setHeader(
         'Set-Cookie',
-        `${encodeURIComponent(cookieKey)}=${encodeURIComponent(sessionId)}; Secure`,
+        `${encodeURIComponent(cookieKey)}=${encodeURIComponent(sessionId)}${
+          protocol === 'https' ? '; Secure' : ''
+        }`,
       );
     } else {
       cookies.set(cookieKey, sessionId, { secure: true });
