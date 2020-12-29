@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import os from 'os';
 import path from 'path';
 import execa from 'execa';
 import getPort from 'get-port';
@@ -79,6 +80,13 @@ const devNext = async (project: ProjectInfo): Promise<void> => {
   });
   await writeFile(projectEnvPath, envVars.join('\n'));
 
+  const networkParams = [];
+  if (os.platform() !== 'darwin') {
+    networkParams.push(...['--network', 'host']);
+  } else {
+    networkParams.push(...['-p', `${currentPort}:${currentPort}`]);
+  }
+
   const dockerParams = [
     'create',
     '-it',
@@ -88,8 +96,7 @@ const devNext = async (project: ProjectInfo): Promise<void> => {
     projectEnvPath,
     '-v',
     `${projectModulesPath}:${dockerWorkingDir}/node_modules`,
-    '-p',
-    `${currentPort}:${currentPort}`,
+    ...networkParams,
     '--name',
     projectDockerName,
     dockerImage,
