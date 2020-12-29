@@ -1,3 +1,4 @@
+import os from 'os';
 import execa from 'execa';
 import getPort from 'get-port';
 import chalk from 'chalk';
@@ -9,11 +10,7 @@ import { init } from './devSettings';
 import { log } from './colors';
 import { stop, rm } from './docker';
 
-import {
-  dockerServerPath,
-  mongoUrlParam,
-  mongoDbNameParam,
-} from '../settings';
+import { dockerServerPath, mongoUrlParam, mongoDbNameParam } from '../settings';
 
 const createDevServerDocker = async (
   settings: SolutionInfo,
@@ -72,6 +69,13 @@ const createDevServerDocker = async (
   });
   await writeFile(devServerEnv, devServerEnvVars.join('\n'));
 
+  const networkParams = [];
+  if (os.platform() !== 'darwin') {
+    networkParams.push(...['--network', 'host']);
+  } else {
+    networkParams.push(...['-p', `${serverPort}:${serverPort}`]);
+  }
+
   const dockerParams = [
     'create',
     '-it',
@@ -79,8 +83,7 @@ const createDevServerDocker = async (
     devServerEnv,
     '-v',
     `${devServerModules}:${dockerServerPath}/node_modules`,
-    '-p',
-    `${serverPort}:${serverPort}`,
+    ...networkParams,
     '--name',
     devServerName,
     devServerImage,
