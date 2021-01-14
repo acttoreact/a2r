@@ -49,9 +49,7 @@ const getInternalImports = (): GroupedImports[] => [
  * Gets model imports text
  * @param groupedModelImports Grouped model imports (by path)
  */
-const getImports = (
-  groupedModelImports: GroupedImports[],
-): string =>
+const getImports = (groupedModelImports: GroupedImports[]): string =>
   groupedModelImports
     .map(
       ({ def, named, path: fromPath }) =>
@@ -65,9 +63,7 @@ const getImports = (
  * Gets docs text
  * @param jsDoc `jsDoc` property from `JSDocContainer`
  */
-const getDocs = (jsDoc: ts.JSDoc[]): string => {
-  return jsDoc[0].getFullText();
-};
+const getDocs = (jsDoc: ts.JSDoc[]): string => jsDoc[0].getFullText();
 
 const getValidMethodName = (
   methodName: string,
@@ -144,7 +140,11 @@ export const build = async (
     ...getExternalImports(),
     ...getInternalImports(),
   ];
-  const groupedImports = getGroupedModelImports(initialImports, imports, allUsedTypes);
+  const groupedImports = getGroupedModelImports(
+    initialImports,
+    imports,
+    allUsedTypes,
+  );
 
   const serverSideUrl = `host.docker.internal:${devSettings.server.port}`;
   const clientSideUrl = `localhost:${devSettings.server.port}`;
@@ -152,9 +152,19 @@ export const build = async (
   const cookieKey = devSettings.keys[cookieKeyKey];
   const refererKey = 'a2r_referer';
 
-  await writeFile(socketFilePath, getSocketProvider(productionUrl || serverSideUrl, clientSideUrl, !!productionUrl));
+  await writeFile(
+    socketFilePath,
+    getSocketProvider(
+      productionUrl || serverSideUrl,
+      clientSideUrl,
+      !!productionUrl,
+    ),
+  );
   await writeFile(isClientFilePath, getIsClientContent());
-  await writeFile(getHeadersPath, getHeadersProvider(cookieKey, userTokenKey, refererKey));
+  await writeFile(
+    getHeadersPath,
+    getHeadersProvider(cookieKey, userTokenKey, refererKey),
+  );
   await writeFile(
     proxyIndexPath,
     [

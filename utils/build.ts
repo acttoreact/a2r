@@ -2,16 +2,16 @@ import path from 'path';
 import { out } from '@a2r/telemetry';
 import { ensureDir, emptyFolder, copyContents } from '@a2r/fs';
 
-import { Command, RunningCommand } from '../model';
+import { Command, DevSettings, RunningCommand } from '../model';
 
 import { getSettings, setFileName } from "./settings";
-import { getSettings as getDevSettings } from './devSettings';
 // eslint-disable-next-line import/no-cycle
 import { printCommandUsage } from './help';
 import getProjectPath from './getProjectPath';
 import { build as buildApi } from './watcher/apiProxy';
+import getCleanProjectName from './getCleanProjectName';
 
-import { serverPath, projectsInternalPath, apiPath, proxyPath, modelPath } from '../settings';
+import { serverPath, projectsInternalPath, apiPath, proxyPath, modelPath, userTokenKeyKey, cookieKeyKey } from '../settings';
 
 const build = async (info: RunningCommand): Promise<void> => {
   const { options } = info;
@@ -35,8 +35,24 @@ const build = async (info: RunningCommand): Promise<void> => {
     out.error(`Can't build. Property "productionDomain" must be set in settings file`);
     return;
   }
-  const devSettings = await getDevSettings();
   const mainProjectPath = await getProjectPath();
+  const cleanProjectName = settings.projectName || (await getCleanProjectName(mainProjectPath));
+  const cookieKey = `${cleanProjectName}_sessionId`;
+  const userTokenKey = `${cleanProjectName}_userToken`;
+
+  const devSettings: DevSettings = {
+    activeProjects: [],
+    server: {
+      dockerImage: '',
+      dockerName: '',
+      port: 0,
+      serverPath: '',
+    },
+    keys: {
+      [userTokenKeyKey]: userTokenKey,
+      [cookieKeyKey]: cookieKey,
+    }
+  };
   const serverApiPath = path.resolve(mainProjectPath, serverPath, apiPath);
   const projectApiPath = path.resolve(mainProjectPath, projectPath, projectsInternalPath, proxyPath, apiPath);
   await ensureDir(projectApiPath);
@@ -59,7 +75,7 @@ const command: Command = {
       name: 'project',
       description: 'Project folder to run',
       type: String,
-      typeLabel: '',
+      typeLabel: '{underline folder name}',
       required: true,
     }
   ],

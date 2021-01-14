@@ -1,4 +1,4 @@
-const getAuthHandler = (userTokenKey: string): string => `import Cookies from 'universal-cookie';
+const getAuthHandler = (userTokenKey: string): string => `import Cookies, { CookieSetOptions } from 'universal-cookie';
 import generateId from 'shortid';
 
 import api from './index';
@@ -10,6 +10,7 @@ import socket from './socket';
 interface LoginResponse {
   ok: boolean;
   error?: string;
+  userToken?: string;
 }
 
 /**
@@ -29,7 +30,7 @@ export const login = async (email: string, password: string, remember?: boolean)
     socket.on(id, (userToken: string): void => {
       socket.off(id);
       const cookies = new Cookies();
-      const cookieOptions = { path: '/' };
+      const cookieOptions: CookieSetOptions = { path: '/' };
       if (remember) {
         const now = new Date();
         cookieOptions.expires = new Date(now.setYear(now.getFullYear() + 1))

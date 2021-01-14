@@ -42,7 +42,7 @@ const command: Command = {
       name: 'project',
       description: 'Project folder to run',
       type: String,
-      typeLabel: '',
+      typeLabel: '{underline folder name}',
       required: true,
     }
   ],

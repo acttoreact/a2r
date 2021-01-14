@@ -144,7 +144,7 @@ const command: Command = {
   args: [
     {
       name: 'type',
-      typeLabel: '{underline next|electron}',
+      typeLabel: '{underline next}|{underline electron}',
       description: `Project type. Current available options are: 'next' and 'electron'. Support for 'expo' is coming soon`,
       type: String,
       required: true,
