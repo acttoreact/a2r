@@ -45,7 +45,7 @@ const command: Command = {
       typeLabel: '',
       required: true,
     }
-  ]
-}
+  ],
+};
 
 export default command;

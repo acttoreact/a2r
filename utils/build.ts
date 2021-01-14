@@ -53,8 +53,16 @@ const build = async (info: RunningCommand): Promise<void> => {
 const command: Command = {
   name: 'build',
   description: 'Prepares project for deploy',
-  args: [],
   run: build,
+  args: [
+    {
+      name: 'project',
+      description: 'Project folder to run',
+      type: String,
+      typeLabel: '',
+      required: true,
+    }
+  ],
 };
 
 export default command;
