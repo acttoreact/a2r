@@ -35,7 +35,7 @@ export const login = async (email: string, password: string, remember?: boolean)
         cookieOptions.expires = new Date(now.setYear(now.getFullYear() + 1))
       }
       cookies.set('${userTokenKey}', userToken, cookieOptions);
-      resolve({ ok: true });
+      resolve({ ok: true, userToken });
     });
     
     socket.emit('a2r_login', id, userTokenInfo);

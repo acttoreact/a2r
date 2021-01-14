@@ -2,11 +2,12 @@
  * User info
  */
 export interface User {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   _id: string;
   email: string;
   password: string;
   verified?: boolean;
-  roles: [string]
+  roles: [string];
 }
 
 /**
@@ -42,4 +43,5 @@ export interface Response {
  */
 export interface LoginResponse extends Response {
   info?: A2RUserTokenInfo;
+  userToken?: string;
 }
