@@ -1,5 +1,4 @@
-const getMethodWrapper = (url: string, build?: boolean): string => {
-  return `const methodWrapper = (method: string, ...args: any[]): Promise<any> => {
+const getMethodWrapper = (url: string, build?: boolean): string => `const methodWrapper = (method: string, ...args: any[]): Promise<any> => {
   // console.log('methodWrapper', method, [...args]);
   if (!isClient()) {
     const apiPath = method.split('.').join('/');
@@ -56,6 +55,5 @@ const getMethodWrapper = (url: string, build?: boolean): string => {
     }
   });
 };`;
-};
 
 export default getMethodWrapper;

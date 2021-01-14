@@ -3,7 +3,13 @@ import execa from 'execa';
 import { out } from '@a2r/telemetry';
 import { exists, readFile, writeFile } from '@a2r/fs';
 
-import { PackageJson, ProjectInfo, SolutionInfo, TsConfig } from '../model';
+import {
+  Command,
+  PackageJson,
+  RunningCommand,
+  SolutionInfo,
+  TsConfig,
+} from '../model';
 
 import getProjectPath from './getProjectPath';
 import getCleanProjectName from './getCleanProjectName';
@@ -25,10 +31,10 @@ import {
  * @param destination Destination folder
  */
 const add = async (
-  project: ProjectInfo['type'],
-  destination?: string,
-  baseProjectPath?: string,
+  info: RunningCommand
 ): Promise<void> => {
+  const { options } = info;
+  const { type: project, dest: destination, base: baseProjectPath } = options;
   const templateFolder = templatesFolders[project];
   if (templateFolder) {
     if (!destination) {
@@ -131,4 +137,32 @@ const add = async (
   }
 };
 
-export default add;
+const command: Command = {
+  run: add,
+  name: 'add',
+  description: `Creates project in solution ('next', 'expo' or 'electron') at desired destination folder`,
+  args: [
+    {
+      name: 'type',
+      typeLabel: '{underline next|electron}',
+      description: `Project type. Current available options are: 'next' and 'electron'. Support for 'expo' is coming soon`,
+      type: String,
+      required: true,
+    },
+    {
+      name: 'dest',
+      typeLabel: '{underline folder name}',
+      description: 'Project destination. Folder name where new project will be created at',
+      type: String,
+      required: true,
+    },
+    {
+      name: 'base',
+      typeLabel: '{underline folder name}',
+      description: 'Project base. Required for Electron project. Folder name containing Next.js project to use as base',
+      type: String,
+    }
+  ],
+};
+
+export default command;

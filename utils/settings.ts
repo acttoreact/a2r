@@ -1,11 +1,29 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import path from 'path';
-import { writeFile, ensureDir, readFile } from '@a2r/fs';
+import { writeFile, ensureDir, readFile, exists } from '@a2r/fs';
+import { out } from '@a2r/telemetry';
 
 import { SolutionInfo, PackageJson, ServerInfo } from '../model';
 
-import { log } from './colors';
+import { log, fileName as file } from './colors';
 import getProjectPath from './getProjectPath';
+
+let settingsFileName = 'settings.json';
+
+/**
+ * Sets settings file name
+ * @param fileName File name
+ */
+export const setFileName = async (fileName: string): Promise<void> => {
+  const mainProjectPath = await getProjectPath();
+  const settingsPath = path.resolve(mainProjectPath, '.a2r', fileName);
+  if (await exists(settingsPath)) {
+    out.info(`Using settings file: ${file(fileName)}`);
+    settingsFileName = fileName;
+  } else {
+    out.info(`Settings file ${file(fileName)} not found, using default ${file(settingsFileName)}`);
+  }
+};
 
 /**
  * Default dev server info
@@ -45,7 +63,7 @@ export const getPackageJson = async (
  */
 export const getSettings = async (): Promise<SolutionInfo> => {
   const mainProjectPath = await getProjectPath();
-  const settingsPath = path.resolve(mainProjectPath, '.a2r', 'settings.json');
+  const settingsPath = path.resolve(mainProjectPath, '.a2r', settingsFileName);
   const fileContent = await readFile(settingsPath, 'utf8');
   return JSON.parse(fileContent) as SolutionInfo;
 };
@@ -60,7 +78,7 @@ export const saveSettings = async (
   projectPath?: string,
 ): Promise<SolutionInfo> => {
   const mainProjectPath = projectPath || (await getProjectPath());
-  const settingsPath = path.resolve(mainProjectPath, '.a2r', 'settings.json');
+  const settingsPath = path.resolve(mainProjectPath, '.a2r', settingsFileName);
   await writeFile(settingsPath, JSON.stringify(info, null, 2));
   return info;
 };
@@ -87,7 +105,7 @@ export const setupSettings = async (
   settings: SolutionInfo,
 ): Promise<void> => {
   log(`Initializing settings...`);
-  const settingsPath = path.resolve(projectPath, '.a2r', 'settings.json');
+  const settingsPath = path.resolve(projectPath, '.a2r', settingsFileName);
   const containerPath = path.dirname(settingsPath);
   await ensureDir(containerPath);
   await saveSettings(settings, projectPath);

@@ -1,8 +1,38 @@
+import { CommandLineOptions, OptionDefinition as ArgRule } from 'command-line-args';
+import { OptionDefinition as ArgDefinition } from 'command-line-usage';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Type used to make one or multiple interface keys optional
  */
 export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export interface CommandArg {
+  name: string;
+  type: ArgRule['type'];
+  typeLabel: ArgDefinition['typeLabel'];
+  description: ArgDefinition['description'];
+  required?: boolean;
+}
+
+export interface Command {
+  name: string;
+  description: string;
+  args: CommandArg[];
+  // eslint-disable-next-line no-use-before-define
+  run: (info: RunningCommand) => Promise<void>;
+}
+
+export interface RunningCommand {
+  commandName: string;
+  argv: string[];
+  options: CommandLineOptions;
+}
+
+export interface ParsedArgs {
+  command: string | null;
+  argv: string[];
+}
 
 /**
  * Response from terminal after executing command
@@ -56,7 +86,7 @@ export interface CommandResponse {
    * @memberof CommandResponse
    */
   closeSignal: NodeJS.Signals | null;
-};
+}
 
 /**
  * Docker info relative to a project
@@ -104,6 +134,8 @@ export interface DatabaseInfo {
  */
 export interface SolutionInfo {
   version: string;
+  projectName: string;
+  productionDomain: string;
   projects: ProjectInfo[];
   devServer: ServerInfo;
   server: ServerInfo;

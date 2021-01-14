@@ -1,5 +1,7 @@
 import execa from 'execa';
 
+import { Command } from '../model';
+
 import getLatestVersion from './getLatestVersion';
 import { log, version, framework } from './colors';
 import {
@@ -9,10 +11,10 @@ import {
   saveSettings,
 } from './settings';
 import getDockerImageVersion from './getDockerImageVersion';
+import getCleanProjectName from './getCleanProjectName';
 import packageJSON from '../package.json';
 
 import { defaultDockerImage, defaultDockerWorkDir } from '../settings';
-import getCleanProjectName from './getCleanProjectName';
 
 const update = async (): Promise<void> => {
   const latestVersion = await getLatestVersion();
@@ -97,6 +99,9 @@ const update = async (): Promise<void> => {
       },
     };
     const cleanProjectName = await getCleanProjectName();
+    if (!settings.projectName) {
+      settings.projectName = cleanProjectName;
+    }
     settings.projects = settings.projects.map((p) => {
       if (p.type === 'next') {
         return {
@@ -114,4 +119,11 @@ const update = async (): Promise<void> => {
   }
 };
 
-export default update;
+const command: Command = {
+  run: update,
+  name: 'update',
+  description: `Updates the project to the last version of ${framework}`,
+  args: [],
+};
+
+export default command;

@@ -91,6 +91,7 @@ export const build = async (
   apiSourcePath: string,
   proxyTargetPath: string,
   devSettings: DevSettings,
+  productionUrl?: string,
 ): Promise<void> => {
   const files = await getFilesRecursively(apiSourcePath, ['.ts']);
   const proxyIndexPath = path.resolve(proxyTargetPath, 'index.ts');
@@ -151,14 +152,14 @@ export const build = async (
   const cookieKey = devSettings.keys[cookieKeyKey];
   const refererKey = 'a2r_referer';
 
-  await writeFile(socketFilePath, getSocketProvider(serverSideUrl, clientSideUrl));
+  await writeFile(socketFilePath, getSocketProvider(productionUrl || serverSideUrl, clientSideUrl, !!productionUrl));
   await writeFile(isClientFilePath, getIsClientContent());
   await writeFile(getHeadersPath, getHeadersProvider(cookieKey, userTokenKey, refererKey));
   await writeFile(
     proxyIndexPath,
     [
       getImports(groupedImports),
-      getMethodWrapper(serverSideUrl),
+      getMethodWrapper(productionUrl || serverSideUrl, !!productionUrl),
       ...methods,
       getApiObjectText(apiObject),
       'export default api;\n',

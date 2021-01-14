@@ -17,7 +17,7 @@ interface LoginResponse {
  * @param email User email
  * @param password User password (non encrypted)
  */
-export const login = async (email: string, password: string): Promise<LoginResponse> => {
+export const login = async (email: string, password: string, remember?: boolean): Promise<LoginResponse> => {
   const response = await api.user.login(email, password);
   const { ok, error, userTokenInfo } = response;
   if (!ok) {
@@ -29,7 +29,12 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     socket.on(id, (userToken: string): void => {
       socket.off(id);
       const cookies = new Cookies();
-      cookies.set('${userTokenKey}', userToken, { path: '/' });
+      const cookieOptions = { path: '/' };
+      if (remember) {
+        const now = new Date();
+        cookieOptions.expires = new Date(now.setYear(now.getFullYear() + 1))
+      }
+      cookies.set('${userTokenKey}', userToken, cookieOptions);
       resolve({ ok: true });
     });
     

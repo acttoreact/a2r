@@ -1,61 +1,52 @@
 import chalk from 'chalk';
+import { OptionDefinition } from 'command-line-args';
 
-import { framework, logo } from './colors';
+import { CommandArg } from '../model';
 
-/**
- * Command lines rules (used to serialize user input when using a2r command)
- */
-export const commandLineRules = [
+import { fileName, framework, logo } from './colors';
+// eslint-disable-next-line import/no-cycle
+import { commandsMap } from './commands';
+
+export const globalArguments: CommandArg[] = [
   {
-    name: 'init',
-    alias: 'i',
-    type: Boolean,
-  },
-  {
-    name: 'add',
-    alias: 'a',
+    name: 'settings',
+    description: `Set a specific settings ${chalk.italic('json')} file to use (must be inside ${fileName('.a2r')} folder). Default: ${fileName('settings.json')}`,
     type: String,
-    multiple: true,
-  },
-  {
-    name: 'update',
-    alias: 'u',
-    type: Boolean,
-  },
-  {
-    name: 'start',
-    type: Boolean,
-  },
-  {
-    name: 'dev',
-    type: String,
-    multiple: true,
-  },
-  // {
-  //   name: 'stop',
-  //   type: Boolean,
-  // },
-  {
-    name: 'npm',
-    type: String,
-    multiple: true,
-  },
-  {
-    name: 'version',
-    alias: 'v',
-    type: Boolean,
-  },
-  {
-    name: 'help',
-    alias: 'h',
-    type: Boolean,
+    typeLabel: '{underline fileName}',
   },
 ];
+
+export const mergeArguments = (
+  argumentsLists: CommandArg[][],
+): OptionDefinition[] => {
+  const argsMap = new Map<string, CommandArg>();
+  for (let i = 0, l = argumentsLists.length; i < l; i++) {
+    const list = argumentsLists[i];
+    for (let j = 0, k = list.length; j < k; j++) {
+      const command = list[j];
+      argsMap.set(command.name, {
+        ...(argsMap.get(command.name) || {}),
+        ...command,
+      });
+    }
+  }
+  return Array.from(argsMap.values());
+};
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const parseARgs = (commandOptions: any): { [name: string]: any } => ({
+  ...((commandOptions && commandOptions._all) || {}),
+});
+
+const commandNamesReplacements: { [key: string]: string } = {
+  'npm': 'npm install',
+};
 
 /**
  * Command line help containing information about available command options
  */
-export const commandLineHelp = [
+export const globalHelp = [
   {
     header: framework,
     content: `The isomorphic, reactive ${chalk.italic(
@@ -67,63 +58,23 @@ export const commandLineHelp = [
     raw: true,
   },
   {
-    header: 'Synopsis',
-    content:
-      '$ npx a2r <command> [options]\n$ npx a2r --help\n$ npx a2r --add next www',
+    header: 'Commands commands',
+    content: Array.from(new Set(commandsMap.values())).map((command) => ({
+      name: chalk.bold(commandNamesReplacements[command.name] || command.name),
+      summary: command.description,
+    })),
   },
   {
-    header: 'Commands',
-    optionList: [
-      {
-        name: 'init',
-        alias: 'i',
-        typeLabel: ' ',
-        description: `Initializes the project for ${framework}`,
-      },
-      {
-        name: 'update',
-        alias: 'u',
-        typeLabel: ' ',
-        description: `Updates the project to the last version of ${framework}`,
-      },
-      {
-        name: 'add',
-        alias: 'a',
-        typeLabel: '{underline project} {underline destination} [{underline baseProjectPath}]',
-        description: `Creates project in solution ('next', 'expo' or 'electron') at desired destination folder`,
-      },
-      {
-        name: 'start',
-        typeLabel: ' ',
-        description: `Runs watcher and server`,
-      },
-      {
-        name: 'dev',
-        typeLabel: '{underline projectPath}',
-        description: `Runs the project in that path in dev mode`,
-      },
-      // {
-      //   name: 'stop',
-      //   typeLabel: ' ',
-      //   description: `Stops watcher and server`,
-      // },
-      {
-        name: 'npm install',
-        typeLabel: '[{underline package[@version]}]',
-        description: `Install npm packages in working directory project and its docker (if at least created)`,
-      },
-      {
-        name: 'version',
-        alias: 'v',
-        typeLabel: ' ',
-        description: `Gets the current version of ${framework}`,
-      },
-      {
-        name: 'help',
-        alias: 'h',
-        typeLabel: ' ',
-        description: 'Prints this usage guide',
-      },
-    ],
+    header: 'Global options',
+    optionList: globalArguments,
+  },
+  {
+    header: 'Synopsis',
+    content:
+      '$ npx a2r <command> [options]\n$ npx a2r help\n$ npx a2r add --type next --dest www\n$ npx a2r add --type electron --dest desktop --base www\n$ npx a2r dev --project www',
+  },
+  {
+    content: 'Run `npx a2r help <command>` for help with a specific command.',
+    raw: true,
   },
 ];
