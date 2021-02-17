@@ -64,6 +64,15 @@ const build = async (info: RunningCommand): Promise<void> => {
   await ensureDir(projectModelPath);
   await emptyFolder(projectModelPath);
   await copyContents(serverModelPath, projectModelPath);
+
+  if (project.type === 'electron') {
+    const { productName } = settings;
+    if (!productName) {
+      out.error(`Can't build. Property "productName" must be set in settings file for Electron apps`);
+      return;
+    }
+    
+  }
 };
 
 const command: Command = {

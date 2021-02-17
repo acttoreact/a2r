@@ -21,7 +21,15 @@ export const printCommandUsage = (commandName: string): void => {
     },
   ];
   if (command.args.length) {
-    usage.push({ header: 'Command Options', optionList: command.args });
+    usage.push({
+      header: 'Command Options',
+      optionList: command.args.map((arg) => ({
+        ...arg,
+        description: arg.required
+          ? `[Required] ${arg.description}`
+          : arg.description,
+      })),
+    });
   }
   usage.push({ header: 'Global Options', optionList: globalArguments });
   write(`${commandLineUsage(usage)}\n\n`);

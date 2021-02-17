@@ -1,6 +1,6 @@
 import execa from 'execa';
 
-import { Command } from '../model';
+import { Command, RunningCommand } from '../model';
 
 import getLatestVersion from './getLatestVersion';
 import { log, version, framework } from './colors';
@@ -16,11 +16,12 @@ import packageJSON from '../package.json';
 
 import { defaultDockerImage, defaultDockerWorkDir } from '../settings';
 
-const update = async (): Promise<void> => {
+const update = async (info: RunningCommand): Promise<void> => {
+  const { options } = info;
   const latestVersion = await getLatestVersion();
   const { version: currentVersion } = packageJSON;
 
-  if (latestVersion === currentVersion) {
+  if (!options.force && latestVersion === currentVersion) {
     log(
       `Your project is already using the latest version (${version(
         currentVersion,
@@ -123,7 +124,14 @@ const command: Command = {
   run: update,
   name: 'update',
   description: `Updates the project to the last version of ${framework}`,
-  args: [],
+  args: [
+    {
+      name: 'force',
+      description: 'Update without checking current version',
+      type: Boolean,
+      typeLabel: ' ',
+    },
+  ],
 };
 
 export default command;

@@ -2,19 +2,18 @@ const getHeadersProvider = (cookieKey: string, userTokenKey: string, refererKey:
 import Cookies from 'universal-cookie';
 
 const getHeader = (ctx: GetServerSidePropsContext): string => {
+  const setCookieHeader = ctx.res.getHeader('Set-Cookie');
+  if (setCookieHeader) {
+    if (typeof setCookieHeader === 'object') {
+      return (setCookieHeader as string[]).join('; ');
+    }
+    return setCookieHeader as string;
+  }
   if (ctx.req.headers.cookie) {
     return ctx.req.headers.cookie;
-  } else {
-    const setCookieHeader = ctx.res.getHeader('Set-Cookie');
-    if (setCookieHeader) {
-      if (typeof setCookieHeader === 'object') {
-        return (setCookieHeader as string[]).join('; ');
-      }
-      return setCookieHeader as string;
-    }
   }
   return '';
-}
+};
 
 const getHeaders = (ctx?: GetServerSidePropsContext): { Cookie?: string } => {
   if (!ctx || !ctx.req || !ctx.res) {
