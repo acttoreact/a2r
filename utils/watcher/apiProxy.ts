@@ -41,7 +41,7 @@ const getInternalImports = (): GroupedImports[] => [
   { path: `'./socket'`, def: 'socket', named: ['MethodCall', 'SocketMessage'] },
   { path: `'./isClient'`, def: 'isClient' },
   { path: `'./getHeaders'`, def: 'getHeaders' },
-  { path: `'../../../'`, named: ['basePath', 'domain'] },
+  { path: `'../../../config/settings'`, named: ['basePath', 'domain'] },
 ];
 
 /**
