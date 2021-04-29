@@ -135,7 +135,7 @@ export interface DatabaseInfo {
 export interface SolutionInfo {
   version: string;
   projectName: string;
-  productName: string;
+  productName?: string;
   productionDomain: string;
   projects: ProjectInfo[];
   devServer: ServerInfo;

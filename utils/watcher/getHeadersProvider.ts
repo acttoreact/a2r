@@ -1,5 +1,7 @@
-const getHeadersProvider = (cookieKey: string, userTokenKey: string, refererKey: string): string => `import { GetServerSidePropsContext } from 'next';
+const getHeadersProvider = (): string => `import { GetServerSidePropsContext } from 'next';
 import Cookies from 'universal-cookie';
+
+import { cookieKey, userTokenKey, refererKey } from '../../../config/settings';
 
 const getHeader = (ctx: GetServerSidePropsContext): string => {
   const res = [];
@@ -25,15 +27,15 @@ const getHeaders = (ctx?: GetServerSidePropsContext): { Cookie?: string } => {
     return {};
   }
   const cookies = new Cookies(header);
-  const sessionId: string = cookies.get('${cookieKey}');
-  let cookie = \`${cookieKey}=\${sessionId}\`;
-  const userToken = cookies.get('${userTokenKey}');
+  const sessionId: string = cookies.get(cookieKey);
+  let cookie = \`\${cookieKey}=\${sessionId}\`;
+  const userToken = cookies.get(userTokenKey);
   if (userToken) {
-    cookie = \`\${cookie}; ${userTokenKey}=\${userToken}\`;
+    cookie = \`\${cookie}; \${userTokenKey}=\${userToken}\`;
   }
-  const refererCookie: string = cookies.get('${refererKey}');
+  const refererCookie: string = cookies.get(refererKey);
   if (refererCookie) {
-    cookie = \`\${cookie}; ${refererKey}=\${refererCookie}\`;
+    cookie = \`\${cookie}; \${refererKey}=\${refererCookie}\`;
   }
   return { 'Cookie': cookie };
 };

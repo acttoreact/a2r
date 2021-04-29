@@ -2,9 +2,7 @@ import Cookies from 'universal-cookie';
 import getId from 'shortid';
 import { NextPageContext } from 'next';
 
-import { publicRuntimeConfig } from '../settings';
-
-const { cookieKey, userTokenKey } = publicRuntimeConfig;
+import { cookieKey, userTokenKey } from '../config/settings';
 
 const getInitialProps = (
   ctx: NextPageContext,

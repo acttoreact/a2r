@@ -23,8 +23,6 @@ import getIsClientContent from './getIsClientContent';
 import getAuthHandler from './getAuthHandler';
 import getHeadersProvider from './getHeadersProvider';
 
-import { userTokenKeyKey, cookieKeyKey } from '../../settings';
-
 export const api: APIStructure = {};
 
 /**
@@ -43,6 +41,7 @@ const getInternalImports = (): GroupedImports[] => [
   { path: `'./socket'`, def: 'socket', named: ['MethodCall', 'SocketMessage'] },
   { path: `'./isClient'`, def: 'isClient' },
   { path: `'./getHeaders'`, def: 'getHeaders' },
+  { path: `'../../../'`, named: ['basePath', 'domain'] },
 ];
 
 /**
@@ -148,9 +147,6 @@ export const build = async (
 
   const serverSideUrl = `host.docker.internal:${devSettings.server.port}`;
   const clientSideUrl = `localhost:${devSettings.server.port}`;
-  const userTokenKey = devSettings.keys[userTokenKeyKey];
-  const cookieKey = devSettings.keys[cookieKeyKey];
-  const refererKey = 'a2r_referer';
 
   await writeFile(
     socketFilePath,
@@ -163,13 +159,13 @@ export const build = async (
   await writeFile(isClientFilePath, getIsClientContent());
   await writeFile(
     getHeadersPath,
-    getHeadersProvider(cookieKey, userTokenKey, refererKey),
+    getHeadersProvider(),
   );
   await writeFile(
     proxyIndexPath,
     [
       getImports(groupedImports),
-      getMethodWrapper(productionUrl || serverSideUrl, !!productionUrl),
+      getMethodWrapper(!!productionUrl),
       ...methods,
       getApiObjectText(apiObject),
       'export default api;\n',
@@ -177,6 +173,6 @@ export const build = async (
       .filter((s) => !!s)
       .join('\n\n'),
   );
-  await writeFile(authFilePath, getAuthHandler(userTokenKey));
+  await writeFile(authFilePath, getAuthHandler());
   out.verbose('API Proxy built');
 };

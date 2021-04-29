@@ -1,8 +1,9 @@
-const getAuthHandler = (userTokenKey: string): string => `import Cookies, { CookieSetOptions } from 'universal-cookie';
+const getAuthHandler = (): string => `import Cookies, { CookieSetOptions } from 'universal-cookie';
 import generateId from 'shortid';
 
 import api from './index';
 import socket from './socket';
+import { userTokenKey } from '../../../config/settings';
 
 /**
  * Login client method response
@@ -36,7 +37,7 @@ export const login = async (email: string, password: string, remember?: boolean)
         const now = new Date();
         cookieOptions.expires = new Date(now.setFullYear(now.getFullYear() + 1))
       }
-      cookies.set('${userTokenKey}', userToken, cookieOptions);
+      cookies.set(userTokenKey, userToken, cookieOptions);
       resolve({ ok: true, userToken });
     });
     
@@ -65,7 +66,7 @@ export const loginWithToken = async (token: string, remember?: boolean): Promise
           const now = new Date();
           cookieOptions.expires = new Date(now.setFullYear(now.getFullYear() + 1))
         }
-        cookies.set('${userTokenKey}', token, cookieOptions);
+        cookies.set(userTokenKey, token, cookieOptions);
         resolve(true);
       } else {
         resolve(false);
@@ -83,11 +84,11 @@ export const logout = async (): Promise<void> =>
   new Promise((resolve) => {
     const cookies = new Cookies();
     const id = generateId();
-    const token = cookies.get('${userTokenKey}');
+    const token = cookies.get(userTokenKey);
     socket.on(id, (userToken: string): void => {
       socket.off(id);
       if (!token || token === userToken) {
-        cookies.remove('${userTokenKey}', { path: '/' });
+        cookies.remove(userTokenKey, { path: '/' });
       }
       resolve();
     });
