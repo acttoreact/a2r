@@ -53,26 +53,28 @@ const build = async (info: RunningCommand): Promise<void> => {
       [cookieKeyKey]: cookieKey,
     }
   };
+
+  const optativeIntermediatePath = project.type === 'electron' ? 'renderer' : '';
+
   const serverApiPath = path.resolve(mainProjectPath, serverPath, apiPath);
-  const projectApiPath = path.resolve(mainProjectPath, projectPath, projectsInternalPath, proxyPath, apiPath);
+  const projectApiPath = path.resolve(mainProjectPath, projectPath, optativeIntermediatePath, projectsInternalPath, proxyPath, apiPath);
   await ensureDir(projectApiPath);
   await emptyFolder(projectApiPath);
   await buildApi(serverApiPath, projectApiPath, devSettings, productionDomain);
 
   const serverModelPath = path.resolve(mainProjectPath, serverPath, modelPath);
-  const projectModelPath = path.resolve(mainProjectPath, projectPath, projectsInternalPath, proxyPath, modelPath);
+  const projectModelPath = path.resolve(mainProjectPath, projectPath, optativeIntermediatePath, projectsInternalPath, proxyPath, modelPath);
   await ensureDir(projectModelPath);
   await emptyFolder(projectModelPath);
   await copyContents(serverModelPath, projectModelPath);
 
-  if (project.type === 'electron') {
-    const { productName } = settings;
-    if (!productName) {
-      out.error(`Can't build. Property "productName" must be set in settings file for Electron apps`);
-      return;
-    }
-    
-  }
+  // if (project.type === 'electron') {
+  //   const { productName } = settings;
+  //   if (!productName) {
+  //     out.error(`Can't build. Property "productName" must be set in settings file for Electron apps`);
+  //     return;
+  //   }
+  // }
 };
 
 const command: Command = {
