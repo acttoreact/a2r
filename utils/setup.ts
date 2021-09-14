@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import getDockerImageVersion from './getDockerImageVersion';
 import pullDockerImage from './pullDockerImage';
+import getCleanProjectName from './getCleanProjectName';
 import { setupSettings, defaultDevServer, defaultServer } from './settings';
 import { log } from './colors';
 
@@ -16,8 +17,12 @@ const setup = async (projectPath: string, version: string): Promise<void> => {
   await pullDockerImage('server', serverVersion);
   await pullDockerImage('server-dev', devServerVersion);
 
+  const projectName = await getCleanProjectName(projectPath);
+
   const settings: SolutionInfo = {
+    projectName,
     version,
+    productionDomain: '',
     projects: [],
     devServer: {
       ...defaultDevServer,

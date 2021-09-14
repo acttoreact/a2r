@@ -5,10 +5,11 @@ const getSocketProvider = (
   clientSideUrl: string,
   build?: boolean,
 ): string => {
-  const serverSocketUrl = `ws${build ? 's' : ''}://${serverSideUrl}`;
-  const clientSocketUrl = `ws${build ? 's' : ''}://${clientSideUrl}`;
+  const serverSocketUrl = `ws://${serverSideUrl}`;
+  const clientSocketUrl = `ws://${clientSideUrl}`;
 
   return `import { io }  from "socket.io-client";
+import { basePath${build ? ', domain' : ''} } from '../../../config/settings';
 
 import isClient from './isClient';
 
@@ -66,10 +67,10 @@ export interface SocketMessage {
   d: any;
 };
 
-const socket = io(isClient() ? '${clientSocketUrl}' : '${serverSocketUrl}', {
+const socket = io(${build ? `\`wss://\${domain}\`` : `isClient() ? '${clientSocketUrl}' : '${serverSocketUrl}'`}, {
   transports: ['websocket'],
   autoConnect: isClient(),
-  path: '${socketPath}',
+  path: \`\${basePath}${socketPath}\`,
 });
 
 export default socket;`;

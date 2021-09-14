@@ -3,7 +3,9 @@ import execa from 'execa';
 import { out } from '@a2r/telemetry';
 import { ensureDir } from '@a2r/fs';
 
-import { getSettings } from './settings';
+import { Command, RunningCommand } from '../model';
+
+import { getSettings, setFileName } from './settings';
 import getProjectPath from './getProjectPath';
 import getCleanProjectName from './getCleanProjectName';
 import { log, terminalCommand } from './colors';
@@ -11,6 +13,7 @@ import createDevServerDocker from './createDevServerDocker';
 import startWatchers from './watcher/start';
 import onProcessExit from './onProcessExit';
 import copyProjectContentsToDocker from './copyProjectContentsToDocker';
+import { checkForFrameworkOnServer } from './docker';
 
 import {
   devServerPath,
@@ -24,19 +27,22 @@ import {
 /**
  * Temporary `dev` command that will run all needed dockers for solution
  */
-const start = async (): Promise<void> => {
+const start = async (info: RunningCommand): Promise<void> => {
+  const { options } = info;
+  if (options.settings) {
+    await setFileName(options.settings);
+  }
   const settings = await getSettings();
   const { projects } = settings;
   if (projects.length) {
     const mainProjectPath = await getProjectPath();
     const mainServerPath = path.resolve(mainProjectPath, serverPath);
     const a2rInternalPath = path.resolve(mainProjectPath, projectsInternalPath);
-    const cleanProjectName = await getCleanProjectName(mainProjectPath);
+    const cleanProjectName = settings.projectName || (await getCleanProjectName(mainProjectPath));
     const cookieKey = `${cleanProjectName}_sessionId`;
     const userTokenKey = `${cleanProjectName}_userToken`;
 
     const devServerInternalPath = path.resolve(
-      mainProjectPath,
       a2rInternalPath,
       devServerPath,
     );
@@ -66,6 +72,7 @@ const start = async (): Promise<void> => {
       devSettings.server.dockerName,
       dockerServerPath,
     );
+    await checkForFrameworkOnServer(devSettings.server.dockerName);
     await startWatchers(mainProjectPath, devServerInternalPath);
 
     const dockerExecParams = [
@@ -107,4 +114,11 @@ const start = async (): Promise<void> => {
   }
 };
 
-export default start;
+const command: Command = {
+  name: 'start',
+  description: 'Runs watcher and server',
+  run: start,
+  args: [],
+};
+
+export default command;

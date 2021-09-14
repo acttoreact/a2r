@@ -1,63 +1,47 @@
 #!/usr/bin/env node
-import args from 'command-line-args';
-import commandLineUsage from 'command-line-usage';
-import { out } from '@a2r/telemetry';
+import commandLineArgs from 'command-line-args';
+import commandLineCommands from 'command-line-commands';
 
-import write from '../tools/write';
+import { ParsedArgs, RunningCommand } from '../model';
+
 import getVersion from './getVersion';
-import { commandLineRules, commandLineHelp } from './commandLine';
-import init from './init';
-import update from './update';
-import add from './add';
-import start from './start';
-import npmInstall from './npmInstall';
-import stop from './stop';
-import dev from './dev';
-import { terminalCommand } from './colors';
+import {
+  globalArguments,
+  mergeArguments,
+} from './commandLine';
+import { commandsMap } from './commands';
 
-const options = args(commandLineRules);
+const run = async (): Promise<void> => {
+  const helpCommand = commandsMap.get('help')!;
+  let parsedArgs: ParsedArgs;
 
-if (options.help) {
-  write(`${commandLineUsage(commandLineHelp)}\n\n`);
-} else {
-  const run = async (): Promise<void> => {
-    if (options.update) {
-      await update();
-    } else {
-      await getVersion(true);
-      if (options.add) {
-        const [project, destination, baseProjectPath] = options.add;
-        await add(project, destination, baseProjectPath);
-      } else if (options.init) {
-        await init();
-      } else if (options.start) {
-        await start();
-      } else if (options.dev) {
-        const [projectPath] = options.dev;
-        if (projectPath) {
-          await dev(projectPath);
-        } else {
-          out.warn('You must specify a project to run');
-        }
-      } else if (options.npm) {
-        const [install, ...params] = options.npm;
-        if (install === 'install') {
-          await npmInstall(params);
-        } else {
-          out.warn(
-            `Option ${terminalCommand(
-              'npm',
-            )} can only be followed by ${terminalCommand('install')}`,
-          );
-        }
-      } else if (options.stop) {
-        await stop();
-      } else if (!options.version) {
-        out.warn('Unknown or missing option');
-        write(`${commandLineUsage(commandLineHelp)}\n\n`);
-      }
+  try {
+    parsedArgs = commandLineCommands(
+      Array.from(commandsMap.keys()),
+      process.argv.slice(2),
+    );
+  } catch (error) {
+    if (error.name === 'INVALID_COMMAND') {
+      await helpCommand.run({ commandName: error.command, options: {}, argv: [] });
+      return;
     }
-  };
+    throw error;
+  }
 
-  run();
-}
+  const commandName = parsedArgs.command!;
+  const { argv } = parsedArgs;
+  const command = commandsMap.get(commandName)!;
+  const commandDefinitions = mergeArguments([command.args, globalArguments]);
+  const options = commandLineArgs(commandDefinitions, { argv, partial: true });
+  const info: RunningCommand = {
+    commandName,
+    argv,
+    options,
+  };
+  if (command.name !== 'update') {
+    await getVersion(true);
+  }
+  await command.run(info);
+};
+
+run();

@@ -1,7 +1,9 @@
-import express from 'express';
+import express, { Request } from 'express';
 import http from 'http';
 import io from 'socket.io';
+
 import { A2RUserTokenInfo } from './auth';
+import { A2RSocket } from './socket';
 
 /**
  * Basic A2R Context (for `useContext` on API methods)
@@ -23,6 +25,14 @@ export interface A2RContext {
    * Referer URL for incoming connection
    */
   referer: string;
+  /**
+   * A2R Socket (undefined when in REST API)
+   */
+  socket?: A2RSocket;
+  /**
+   * Express.js Request (undefined when in socket)
+   */
+  req?: Request;
 }
 
 /**

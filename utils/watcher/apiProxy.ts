@@ -23,8 +23,6 @@ import getIsClientContent from './getIsClientContent';
 import getAuthHandler from './getAuthHandler';
 import getHeadersProvider from './getHeadersProvider';
 
-import { userTokenKeyKey, cookieKeyKey } from '../../settings';
-
 export const api: APIStructure = {};
 
 /**
@@ -43,15 +41,14 @@ const getInternalImports = (): GroupedImports[] => [
   { path: `'./socket'`, def: 'socket', named: ['MethodCall', 'SocketMessage'] },
   { path: `'./isClient'`, def: 'isClient' },
   { path: `'./getHeaders'`, def: 'getHeaders' },
+  { path: `'../../../config/settings'`, named: ['basePath', 'domain'] },
 ];
 
 /**
  * Gets model imports text
  * @param groupedModelImports Grouped model imports (by path)
  */
-const getImports = (
-  groupedModelImports: GroupedImports[],
-): string =>
+const getImports = (groupedModelImports: GroupedImports[]): string =>
   groupedModelImports
     .map(
       ({ def, named, path: fromPath }) =>
@@ -65,9 +62,7 @@ const getImports = (
  * Gets docs text
  * @param jsDoc `jsDoc` property from `JSDocContainer`
  */
-const getDocs = (jsDoc: ts.JSDoc[]): string => {
-  return jsDoc[0].getFullText();
-};
+const getDocs = (jsDoc: ts.JSDoc[]): string => jsDoc[0].getFullText();
 
 const getValidMethodName = (
   methodName: string,
@@ -91,6 +86,7 @@ export const build = async (
   apiSourcePath: string,
   proxyTargetPath: string,
   devSettings: DevSettings,
+  productionUrl?: string,
 ): Promise<void> => {
   const files = await getFilesRecursively(apiSourcePath, ['.ts']);
   const proxyIndexPath = path.resolve(proxyTargetPath, 'index.ts');
@@ -143,22 +139,33 @@ export const build = async (
     ...getExternalImports(),
     ...getInternalImports(),
   ];
-  const groupedImports = getGroupedModelImports(initialImports, imports, allUsedTypes);
+  const groupedImports = getGroupedModelImports(
+    initialImports,
+    imports,
+    allUsedTypes,
+  );
 
   const serverSideUrl = `host.docker.internal:${devSettings.server.port}`;
   const clientSideUrl = `localhost:${devSettings.server.port}`;
-  const userTokenKey = devSettings.keys[userTokenKeyKey];
-  const cookieKey = devSettings.keys[cookieKeyKey];
-  const refererKey = 'a2r_referer';
 
-  await writeFile(socketFilePath, getSocketProvider(serverSideUrl, clientSideUrl));
+  await writeFile(
+    socketFilePath,
+    getSocketProvider(
+      productionUrl || serverSideUrl,
+      clientSideUrl,
+      !!productionUrl,
+    ),
+  );
   await writeFile(isClientFilePath, getIsClientContent());
-  await writeFile(getHeadersPath, getHeadersProvider(cookieKey, userTokenKey, refererKey));
+  await writeFile(
+    getHeadersPath,
+    getHeadersProvider(),
+  );
   await writeFile(
     proxyIndexPath,
     [
       getImports(groupedImports),
-      getMethodWrapper(serverSideUrl),
+      getMethodWrapper(!!productionUrl),
       ...methods,
       getApiObjectText(apiObject),
       'export default api;\n',
@@ -166,6 +173,6 @@ export const build = async (
       .filter((s) => !!s)
       .join('\n\n'),
   );
-  await writeFile(authFilePath, getAuthHandler(userTokenKey));
+  await writeFile(authFilePath, getAuthHandler());
   out.verbose('API Proxy built');
 };

@@ -1,5 +1,7 @@
 import execa from 'execa';
 
+import { Command, RunningCommand } from '../model';
+
 import getLatestVersion from './getLatestVersion';
 import { log, version, framework } from './colors';
 import {
@@ -9,16 +11,17 @@ import {
   saveSettings,
 } from './settings';
 import getDockerImageVersion from './getDockerImageVersion';
+import getCleanProjectName from './getCleanProjectName';
 import packageJSON from '../package.json';
 
 import { defaultDockerImage, defaultDockerWorkDir } from '../settings';
-import getCleanProjectName from './getCleanProjectName';
 
-const update = async (): Promise<void> => {
+const update = async (info: RunningCommand): Promise<void> => {
+  const { options } = info;
   const latestVersion = await getLatestVersion();
   const { version: currentVersion } = packageJSON;
 
-  if (latestVersion === currentVersion) {
+  if (!options.force && latestVersion === currentVersion) {
     log(
       `Your project is already using the latest version (${version(
         currentVersion,
@@ -34,10 +37,10 @@ const update = async (): Promise<void> => {
       stdout: process.stdout,
       stderr: process.stderr,
     });
-    log('>>> Updating server');
+    log(`>>> Uninstalling from server, just in case (would cause problems)`);
     await execa(
       'npm',
-      ['install', `a2r@${latestVersion}`, '--save-dev', '--prefix', './server'],
+      ['uninstall', `a2r`, '--save', '--prefix', './server'],
       {
         stdout: process.stdout,
         stderr: process.stderr,
@@ -97,6 +100,9 @@ const update = async (): Promise<void> => {
       },
     };
     const cleanProjectName = await getCleanProjectName();
+    if (!settings.projectName) {
+      settings.projectName = cleanProjectName;
+    }
     settings.projects = settings.projects.map((p) => {
       if (p.type === 'next') {
         return {
@@ -114,4 +120,18 @@ const update = async (): Promise<void> => {
   }
 };
 
-export default update;
+const command: Command = {
+  run: update,
+  name: 'update',
+  description: `Updates the project to the last version of ${framework}`,
+  args: [
+    {
+      name: 'force',
+      description: 'Update without checking current version',
+      type: Boolean,
+      typeLabel: ' ',
+    },
+  ],
+};
+
+export default command;

@@ -1,20 +1,22 @@
-const getHeadersProvider = (cookieKey: string, userTokenKey: string, refererKey: string): string => `import { GetServerSidePropsContext } from 'next';
+const getHeadersProvider = (): string => `import { GetServerSidePropsContext } from 'next';
 import Cookies from 'universal-cookie';
 
+import { cookieKey, userTokenKey, refererKey } from '../../../config/settings';
+
 const getHeader = (ctx: GetServerSidePropsContext): string => {
-  if (ctx.req.headers.cookie) {
-    return ctx.req.headers.cookie;
-  } else {
-    const setCookieHeader = ctx.res.getHeader('Set-Cookie');
-    if (setCookieHeader) {
-      if (typeof setCookieHeader === 'object') {
-        return (setCookieHeader as string[]).join('; ');
-      }
-      return setCookieHeader as string;
+  const res = [];
+  const setCookieHeader = ctx.res.getHeader('Set-Cookie');
+  if (setCookieHeader) {
+    if (typeof setCookieHeader === 'object') {
+      res.push(...(setCookieHeader as string[]));
     }
+    res.push(setCookieHeader as string);
   }
-  return '';
-}
+  if (ctx.req.headers.cookie) {
+    res.push(ctx.req.headers.cookie);
+  }
+  return res.join('; ');
+};
 
 const getHeaders = (ctx?: GetServerSidePropsContext): { Cookie?: string } => {
   if (!ctx || !ctx.req || !ctx.res) {
@@ -25,15 +27,15 @@ const getHeaders = (ctx?: GetServerSidePropsContext): { Cookie?: string } => {
     return {};
   }
   const cookies = new Cookies(header);
-  const sessionId: string = cookies.get('${cookieKey}');
-  let cookie = \`${cookieKey}=\${sessionId}\`;
-  const userToken = cookies.get('${userTokenKey}');
+  const sessionId: string = cookies.get(cookieKey);
+  let cookie = \`\${cookieKey}=\${sessionId}\`;
+  const userToken = cookies.get(userTokenKey);
   if (userToken) {
-    cookie = \`\${cookie}; ${userTokenKey}=\${userToken}\`;
+    cookie = \`\${cookie}; \${userTokenKey}=\${userToken}\`;
   }
-  const refererCookie: string = cookies.get('${refererKey}');
+  const refererCookie: string = cookies.get(refererKey);
   if (refererCookie) {
-    cookie = \`\${cookie}; ${refererKey}=\${refererCookie}\`;
+    cookie = \`\${cookie}; \${refererKey}=\${refererCookie}\`;
   }
   return { 'Cookie': cookie };
 };

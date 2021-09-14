@@ -9,6 +9,7 @@
     "execa",
     "lcov",
     "plusplus",
+    "readgarden",
     "respawn",
     "snyk",
     "sourcemap",

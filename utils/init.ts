@@ -1,6 +1,8 @@
 import path from 'path';
 import { out } from '@a2r/telemetry';
 
+import { Command } from '../model';
+
 import { log, framework, terminalCommand } from './colors';
 import exec from '../tools/exec';
 import checkDependencies from './checkDependencies';
@@ -33,4 +35,11 @@ const init = async (): Promise<void> => {
   }
 };
 
-export default init;
+const command: Command = {
+  name: 'init',
+  description: `Initializes the project for ${framework}`,
+  run: init,
+  args: [],
+};
+
+export default command;
