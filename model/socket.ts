@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Socket } from 'socket.io';
+
 /**
  * Socket method call
  */
@@ -39,4 +42,14 @@ export interface SocketMessage {
    * @memberof SocketMessage
    */
   d: any;
+};
+
+/**
+ * A2R Socket
+ */
+ export interface A2RSocket extends Socket {
+  sessionId: string;
+  userToken?: string;
+  ips: string[];
+  referer: string;
 };
