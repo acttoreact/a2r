@@ -1,6 +1,6 @@
 {
   "name": "a2r",
-  "version": "2.6.2",
+  "version": "2.6.4",
   "description": "A2R Framework",
   "engines": {
     "node": ">=16"
@@ -51,7 +51,7 @@
     "deepmerge": "^4.2.2",
     "execa": "^5.1.1",
     "express": "^4.17.1",
-    "get-port": "^6.0.0",
+    "get-port": "^5.1.1",
     "js-cookie": "^3.0.1",
     "js-yaml": "^4.1.0",
     "mongodb": "^4.1.2",
