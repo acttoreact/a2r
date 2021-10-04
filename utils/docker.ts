@@ -157,9 +157,11 @@ export const checkForFrameworkOnServer = async (
     'grep',
     'a2r',
   ]);
-  if (res.stdout.trim()) {
+  const feedback = res.stdout.trim();
+  if (feedback?.includes('empty')) {
     await execa('docker', [
       'exec',
+      dockerName,
       'npm',
       'uninstall',
       'a2r',
