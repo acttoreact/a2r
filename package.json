@@ -1,9 +1,9 @@
 {
   "name": "a2r",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "A2R Framework",
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "main": "./index.js",
   "types": "./index.d.ts",
