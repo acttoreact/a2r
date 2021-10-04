@@ -8,7 +8,7 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./dist;tsc",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
     "dev": "NODE_ENV=development ts-node-dev --debug --respawn --transpile-only ./index.ts",
     "dev-help": "NODE_ENV=development ts-node-dev --debug --respawn --transpile-only ./utils/a2r.ts",
@@ -21,7 +21,7 @@
     "test-coverage": "jest --coverage",
     "test-coverage-dev": "NODE_ENV=development jest --coverage --watchAll",
     "test-full": "npm run test-clear;npm run build;npm run test;npm run test-coverage;npm run lint;npm audit;npm run docs",
-    "upload": "rm -rf ./dist;npm run build;cp -r ./templates/ ./dist/templates;cd dist;npm i;npm publish --access=public;"
+    "upload": "npm run build;cp -r ./templates/ ./dist/templates;cd dist;npm i;npm publish --access=public;"
   },
   "bin": {
     "a2r": "./utils/a2r.js"
