@@ -51,7 +51,7 @@ const onApiValidation: OnValidation = async (
 
     const mainApiPath = path.resolve(mainProxyPath, apiPath); // ./.a2r/dev-server/proxy/api
     await emptyFolder(mainApiPath);
-    await build(serverApiPath, mainApiPath, devSettings);
+    await build(serverApiPath, mainApiPath);
 
     await Promise.all(
       settings.projects.map(async (project) => {

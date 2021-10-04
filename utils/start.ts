@@ -38,14 +38,12 @@ const start = async (info: RunningCommand): Promise<void> => {
     const mainProjectPath = await getProjectPath();
     const mainServerPath = path.resolve(mainProjectPath, serverPath);
     const a2rInternalPath = path.resolve(mainProjectPath, projectsInternalPath);
-    const cleanProjectName = settings.projectName || (await getCleanProjectName(mainProjectPath));
+    const cleanProjectName =
+      settings.projectName || (await getCleanProjectName(mainProjectPath));
     const cookieKey = `${cleanProjectName}_sessionId`;
     const userTokenKey = `${cleanProjectName}_userToken`;
 
-    const devServerInternalPath = path.resolve(
-      a2rInternalPath,
-      devServerPath,
-    );
+    const devServerInternalPath = path.resolve(a2rInternalPath, devServerPath);
     const devServerModules = path.resolve(
       devServerInternalPath,
       'node_modules',
@@ -102,7 +100,9 @@ const start = async (info: RunningCommand): Promise<void> => {
       await subProcess;
     } catch (ex) {
       if (!killed) {
-        log(`Sub process error\n${ex.stack || ex.message}`);
+        log(
+          `Sub process error\n${(ex as Error).stack || (ex as Error).message}`,
+        );
       }
     }
   } else {

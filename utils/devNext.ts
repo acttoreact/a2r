@@ -40,7 +40,8 @@ const devNext = async (project: ProjectInfo): Promise<void> => {
   await ensureDir(projectModulesPath);
 
   const dockerImage = project.dockerBase || defaultDockerImage;
-  const projectDockerName = project.dockerName || `${cleanProjectName}-${project.path}`;
+  const projectDockerName =
+    project.dockerName || `${cleanProjectName}-${project.path}`;
   const dockerWorkingDir = project.dockerWorkingDir || defaultDockerWorkDir;
 
   const checkImage = await imageExists(dockerImage);
@@ -59,11 +60,9 @@ const devNext = async (project: ProjectInfo): Promise<void> => {
   const currentPort = await getPort({ port: desiredPort || undefined });
   if (desiredPort && desiredPort !== currentPort) {
     log(
-      `Port ${chalk.whiteBright(
-        desiredPort,
-      )} is already in use, starting ${project.path} at port ${chalk.greenBright(
-        currentPort,
-      )}`,
+      `Port ${chalk.whiteBright(desiredPort)} is already in use, starting ${
+        project.path
+      } at port ${chalk.greenBright(currentPort)}`,
     );
   }
 
@@ -159,7 +158,7 @@ const devNext = async (project: ProjectInfo): Promise<void> => {
     await subProcess;
   } catch (ex) {
     if (!killed) {
-      log(`Sub process error\n${ex.stack || ex.message}`);
+      log(`Sub process error\n${(ex as Error).stack || (ex as Error).message}`);
     }
   }
 };

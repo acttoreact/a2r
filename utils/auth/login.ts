@@ -10,7 +10,10 @@ import { LoginResponse, User } from '../../model';
  * @param email User email
  * @param password User password
  */
-const login = async (email: string, password: string): Promise<LoginResponse> => {
+const login = async (
+  email: string,
+  password: string,
+): Promise<LoginResponse> => {
   try {
     out.verbose(`Login user: ${email} / ${password}`);
     if (!email || !password) {
@@ -18,7 +21,10 @@ const login = async (email: string, password: string): Promise<LoginResponse> =>
       return { ok: false, error: 'Email and password are mandatory' };
     }
     const collection = await getCollection<User>('users');
-    const user = await collection.findOne({ _id: email }, { projection: { roles: 1 }});
+    const user = await collection.findOne(
+      { _id: email },
+      { projection: { roles: 1 } },
+    );
     if (!user) {
       out.error(`There is no user with email ${email}`);
       return { ok: false, error: `There is no user with email ${email}` };
@@ -31,8 +37,10 @@ const login = async (email: string, password: string): Promise<LoginResponse> =>
     const { _id, roles } = user;
     return { ok: true, info: { _id, roles } };
   } catch (ex) {
-    out.error(`Error at user login: ${ex.stack || ex.message}`, ex);
-    return { ok: false, error: ex.stack || ex.message };
+    out.error(
+      `Error at user login: ${(ex as Error).stack || (ex as Error).message}`,
+    );
+    return { ok: false, error: (ex as Error).stack || (ex as Error).message };
   }
 };
 

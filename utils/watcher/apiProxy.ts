@@ -10,7 +10,6 @@ import {
   GroupedImports,
   ImportClause,
 } from '../../model/api';
-import { DevSettings } from '../../model';
 
 import getModuleInfo from './getModuleInfo';
 import getGroupedModelImports from './getGroupedModelImports';
@@ -85,8 +84,6 @@ const getValidMethodName = (
 export const build = async (
   apiSourcePath: string,
   proxyTargetPath: string,
-  devSettings: DevSettings,
-  productionUrl?: string,
 ): Promise<void> => {
   const files = await getFilesRecursively(apiSourcePath, ['.ts']);
   const proxyIndexPath = path.resolve(proxyTargetPath, 'index.ts');
@@ -145,16 +142,9 @@ export const build = async (
     allUsedTypes,
   );
 
-  const serverSideUrl = `host.docker.internal:${devSettings.server.port}`;
-  const clientSideUrl = `localhost:${devSettings.server.port}`;
-
   await writeFile(
     socketFilePath,
-    getSocketProvider(
-      productionUrl || serverSideUrl,
-      clientSideUrl,
-      !!productionUrl,
-    ),
+    getSocketProvider(),
   );
   await writeFile(isClientFilePath, getIsClientContent());
   await writeFile(
@@ -165,7 +155,7 @@ export const build = async (
     proxyIndexPath,
     [
       getImports(groupedImports),
-      getMethodWrapper(!!productionUrl),
+      getMethodWrapper(),
       ...methods,
       getApiObjectText(apiObject),
       'export default api;\n',

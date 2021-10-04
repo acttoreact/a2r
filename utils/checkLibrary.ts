@@ -12,7 +12,11 @@ const checkLibrary = async (library: string): Promise<boolean> => {
     }
     return check;
   } catch (ex) {
-    out.error(`Error checking library: ${ex.message}\n${ex.stack}`);
+    out.error(
+      `Error checking library: ${(ex as Error).message}\n${
+        (ex as Error).stack
+      }`,
+    );
     return false;
   }
 };

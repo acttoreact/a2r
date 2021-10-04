@@ -5,11 +5,12 @@ import commandLineCommands from 'command-line-commands';
 import { ParsedArgs, RunningCommand } from '../model';
 
 import getVersion from './getVersion';
-import {
-  globalArguments,
-  mergeArguments,
-} from './commandLine';
+import { globalArguments, mergeArguments } from './commandLine';
 import { commandsMap } from './commands';
+
+interface CommandError extends Error {
+  command: string;
+}
 
 const run = async (): Promise<void> => {
   const helpCommand = commandsMap.get('help')!;
@@ -21,8 +22,12 @@ const run = async (): Promise<void> => {
       process.argv.slice(2),
     );
   } catch (error) {
-    if (error.name === 'INVALID_COMMAND') {
-      await helpCommand.run({ commandName: error.command, options: {}, argv: [] });
+    if ((error as CommandError).name === 'INVALID_COMMAND') {
+      await helpCommand.run({
+        commandName: (error as CommandError).command,
+        options: {},
+        argv: [],
+      });
       return;
     }
     throw error;

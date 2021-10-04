@@ -9,35 +9,41 @@ const dbName = process.env[mongoDbNameParam];
 let mongoClient: MongoClient | null = null;
 const options: MongoClientOptions = {
   ignoreUndefined: true,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 };
 
-const clientPromise = new Promise<Db>((resolve, reject): void => {
-  out.info(`Connecting to mongo server at ${url}`);
-  MongoClient.connect(url, options, (err, client): void => {
-    if (err) {
-      reject(err);
-    } else {
-      out.info(`Connecting to database ${dbName}`);
-      mongoClient = client;
-      const db = client.db(dbName);
-      db.on('close', (): void => out.warn('Db was closed'));
-      db.on('timeout', (): void => out.warn('Db timed out'));
-      db.on('error', (error): void =>
-        out.error(`Db produced an error: ${error.stack}`),
-      );
-      db.on('parseError', (error): void =>
-        out.error(`Db produced an error: ${error.stack}`),
-      );
-      db.on('reconnect', (): void => out.info('Db reconnected'));
-      resolve(db);
-    }
+const getPromise = (): Promise<Db> =>
+  new Promise<Db>((resolve, reject): void => {
+    MongoClient.connect(url, options, (err, client): void => {
+      if (err || !client) {
+        reject(err);
+      } else {
+        out.info(`Connecting to database ${dbName}`);
+        mongoClient = client;
+        const db = client.db(dbName);
+        client.on('close', (): void => out.warn('Db was closed'));
+        client.on('timeout', (): void => out.warn('Db timed out'));
+        client.on('error', (error): void =>
+          out.error(`Db produced an error: ${error.stack}`),
+        );
+        client.on('parseError', (error): void =>
+          out.error(`Db produced an error: ${error.stack}`),
+        );
+        client.on('reconnect', (): void => out.info('Db reconnected'));
+        resolve(db);
+      }
+    });
   });
-});
 
-export default function getConnection(): Promise<Db> {
-  return clientPromise;
+let clientPromise = getPromise();
+
+export default async function getConnection(): Promise<Db> {
+  try {
+    const db = await clientPromise;
+    return db;
+  } catch (ex) {
+    clientPromise = getPromise();
+    return clientPromise;
+  }
 }
 
 export async function getCollection<T>(
