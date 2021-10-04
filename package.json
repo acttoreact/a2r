@@ -1,6 +1,6 @@
 {
   "name": "a2r",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "description": "A2R Framework",
   "engines": {
     "node": ">=16"
