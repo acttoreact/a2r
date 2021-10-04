@@ -62,12 +62,12 @@ export interface SocketMessage {
 const url =
   !domain && isClient() && !window.location.hostname.includes('localhost')
     ? window.location.hostname
-    : domain ?? 'localhost:80';
+    : domain;
 
-const protocol = url.includes('localhost') ? 'wss' : 'ws';
+const protocol = url.includes('localhost') ? 'ws' : 'wss';
 
-const socket = isClient()
-  ? io(\`\${protocol}:\${domain}\`, {
+const socket = isClient() && url
+  ? io(\`\${protocol}://\${url}\`, {
     transports: ['websocket'],
     autoConnect: true,
     path: \`\${basePath}${socketPath}\`,
