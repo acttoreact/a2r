@@ -66,7 +66,8 @@ const npmInstall = async (info: RunningCommand): Promise<void> => {
         stderr: process.stderr,
         cwd: currentProjectPath,
       });
-      if (settingsExist()) {
+      const check = await settingsExist();
+      if (check) {
         const devSettings = await getDevSettings();
         if (target === 'server') {
           const checkDocker = await dockerExists(
@@ -141,7 +142,9 @@ const npmInstall = async (info: RunningCommand): Promise<void> => {
           }
         }
       } else {
-        log(`Not installing in docker because ${target} has never been started`);
+        log(
+          `Not installing in docker because ${target} has never been started`,
+        );
       }
     } else {
       out.error(`Command ${terminalCommand(`npm ${install}`)} not supported`);
@@ -151,9 +154,10 @@ const npmInstall = async (info: RunningCommand): Promise<void> => {
 
 const command: Command = {
   name: 'npm',
-  description: 'Install npm packages in working directory project and its docker (if at least created)',
+  description:
+    'Install npm packages in working directory project and its docker (if at least created)',
   run: npmInstall,
   args: [],
-}
+};
 
 export default command;

@@ -55,7 +55,7 @@ export const stop = async (dockerName: string): Promise<void> => {
   } catch (ex) {
     out.verbose(
       `Error stopping docker "${dockerName}", probably it wasn't running. Error: ${
-        ex.stack || ex.message
+        (ex as Error).stack || (ex as Error).message
       }`,
     );
   }
@@ -72,7 +72,7 @@ export const rm = async (dockerName: string): Promise<void> => {
   } catch (ex) {
     out.verbose(
       `Error removing docker "${dockerName}", probably it didn't exist. Error: ${
-        ex.stack || ex.message
+        (ex as Error).stack || (ex as Error).message
       }`,
     );
   }

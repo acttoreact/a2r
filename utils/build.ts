@@ -2,16 +2,15 @@ import path from 'path';
 import { out } from '@a2r/telemetry';
 import { ensureDir, emptyFolder, copyContents } from '@a2r/fs';
 
-import { Command, DevSettings, RunningCommand } from '../model';
+import { Command, RunningCommand } from '../model';
 
 import { getSettings, setFileName } from "./settings";
 // eslint-disable-next-line import/no-cycle
 import { printCommandUsage } from './help';
 import getProjectPath from './getProjectPath';
 import { build as buildApi } from './watcher/apiProxy';
-import getCleanProjectName from './getCleanProjectName';
 
-import { serverPath, projectsInternalPath, apiPath, proxyPath, modelPath, userTokenKeyKey, cookieKeyKey } from '../settings';
+import { serverPath, projectsInternalPath, apiPath, proxyPath, modelPath } from '../settings';
 
 const build = async (info: RunningCommand): Promise<void> => {
   const { options } = info;
@@ -36,23 +35,6 @@ const build = async (info: RunningCommand): Promise<void> => {
     return;
   }
   const mainProjectPath = await getProjectPath();
-  const cleanProjectName = settings.projectName || (await getCleanProjectName(mainProjectPath));
-  const cookieKey = `${cleanProjectName}_sessionId`;
-  const userTokenKey = `${cleanProjectName}_userToken`;
-
-  const devSettings: DevSettings = {
-    activeProjects: [],
-    server: {
-      dockerImage: '',
-      dockerName: '',
-      port: 0,
-      serverPath: '',
-    },
-    keys: {
-      [userTokenKeyKey]: userTokenKey,
-      [cookieKeyKey]: cookieKey,
-    }
-  };
 
   const optativeIntermediatePath = project.type === 'electron' ? 'renderer' : '';
 
@@ -60,7 +42,7 @@ const build = async (info: RunningCommand): Promise<void> => {
   const projectApiPath = path.resolve(mainProjectPath, projectPath, optativeIntermediatePath, projectsInternalPath, proxyPath, apiPath);
   await ensureDir(projectApiPath);
   await emptyFolder(projectApiPath);
-  await buildApi(serverApiPath, projectApiPath, devSettings, productionDomain);
+  await buildApi(serverApiPath, projectApiPath);
 
   const serverModelPath = path.resolve(mainProjectPath, serverPath, modelPath);
   const projectModelPath = path.resolve(mainProjectPath, projectPath, optativeIntermediatePath, projectsInternalPath, proxyPath, modelPath);

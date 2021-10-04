@@ -1,10 +1,16 @@
-const getMethodWrapper = (build?: boolean): string => `const methodWrapper = (method: string, ...args: any[]): Promise<any> => {
+const getMethodWrapper = (): string => `const methodWrapper = (method: string, ...args: any[]): Promise<any> => {
   // console.log('methodWrapper', method, [...args]);
   if (!isClient()) {
     const apiPath = method.split('.').join('/');
     const params = args.slice();
-    const ctx = params.pop();
-    const url = \`http${build ? 's' : ''}://\${domain}\${basePath}/a2r/\${apiPath}\`;
+    const ctx = (params.pop() as unknown) as GetServerSidePropsContext<ParsedUrlQuery>;
+    let hostName = ctx?.req?.headers?.host;
+    let protocol = 'https';
+    if (hostName?.includes('localhost')) {
+      hostName = domain;
+      protocol = 'http';
+    }
+    const url = \`\${protocol}://\${hostName}\${basePath}/a2r/\${apiPath}\`;
     // console.log('on server side, calling REST API method', url);
     return new Promise<any>((resolve, reject): void => {
       axios({

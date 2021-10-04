@@ -18,7 +18,10 @@ const register = async (user: NewA2RUser): Promise<Response> => {
       return { ok: false, error: 'Email and password are mandatory' };
     }
     const collection = await getCollection<A2RUser>('users');
-    const userCheck = await collection.findOne({ _id: email }, { projection: { email: 1 } });
+    const userCheck = await collection.findOne(
+      { _id: email },
+      { projection: { email: 1 } },
+    );
     if (userCheck) {
       out.error(`Email ${email} already exists`);
       return { ok: false, error: 'Email already exists' };
@@ -33,8 +36,10 @@ const register = async (user: NewA2RUser): Promise<Response> => {
     });
     return { ok: true };
   } catch (ex) {
-    out.error(`Error at user register: ${ex.stack || ex.message}`, ex);
-    return { ok: false, error: ex.stack || ex.message };
+    out.error(
+      `Error at user register: ${(ex as Error).stack || (ex as Error).message}`,
+    );
+    return { ok: false, error: (ex as Error).stack || (ex as Error).message };
   }
 };
 
