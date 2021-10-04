@@ -2,7 +2,6 @@
 import os from 'os';
 import path from 'path';
 import execa from 'execa';
-import getPort from 'get-port';
 import chalk from 'chalk';
 import { ensureDir, readDir, writeFile } from '@a2r/fs';
 
@@ -57,6 +56,7 @@ const devNext = async (project: ProjectInfo): Promise<void> => {
   await rm(projectDockerName);
 
   const desiredPort = parseInt((project.env?.PORT || '') as string, 10);
+  const { default: getPort } = await import('get-port');
   const currentPort = await getPort({ port: desiredPort || undefined });
   if (desiredPort && desiredPort !== currentPort) {
     log(

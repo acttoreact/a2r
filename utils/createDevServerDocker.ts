@@ -1,6 +1,5 @@
 import os from 'os';
 import execa from 'execa';
-import getPort from 'get-port';
 import chalk from 'chalk';
 import { writeFile } from '@a2r/fs';
 
@@ -27,6 +26,7 @@ const createDevServerDocker = async (
   await rm(devServerName);
 
   const desiredServerPort = parseInt((devServer.env?.PORT || '') as string, 10);
+  const { default: getPort } = await import('get-port');
   const serverPort = await getPort({ port: desiredServerPort || undefined });
   if (desiredServerPort && desiredServerPort !== serverPort) {
     log(
