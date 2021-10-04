@@ -31,6 +31,7 @@ const getExternalImports = (): GroupedImports[] => [
   { path: `'axios'`, def: 'axios' },
   { path: `'shortid'`, def: 'generateId' },
   { path: `'next'`, named: ['GetServerSidePropsContext'] },
+  { path: `'querystring'`, named: ['ParsedUrlQuery']},
 ];
 
 /**
