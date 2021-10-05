@@ -4,14 +4,9 @@ import { Command, RunningCommand } from '../model';
 
 import getLatestVersion from './getLatestVersion';
 import { log, version, framework } from './colors';
-import {
-  getSettings,
-  defaultDevServer,
-  defaultServer,
-  saveSettings,
-} from './settings';
-import getDockerImageVersion from './getDockerImageVersion';
+import { getSettings, defaultDevServer, defaultServer, saveSettings } from './settings';
 import getCleanProjectName from './getCleanProjectName';
+import { imageExists, removeImage } from './docker';
 import packageJSON from '../package.json';
 
 import { defaultDockerImage, defaultDockerWorkDir } from '../settings';
@@ -28,61 +23,41 @@ const update = async (info: RunningCommand): Promise<void> => {
       )}) of ${framework} 👌`,
     );
   } else {
-    log(
-      `>>> Updating project from ${version(currentVersion)} to ${version(
-        latestVersion,
-      )}.`,
-    );
+    log(`>>> Updating project from ${version(currentVersion)} to ${version(latestVersion)}.`);
     await execa('npm', ['install', `a2r@${latestVersion}`, '--save'], {
       stdout: process.stdout,
       stderr: process.stderr,
     });
     log(`>>> Uninstalling from server, just in case (would cause problems)`);
-    await execa(
-      'npm',
-      ['uninstall', `a2r`, '--save', '--prefix', './server'],
-      {
-        stdout: process.stdout,
-        stderr: process.stderr,
-      },
-    );
+    await execa('npm', ['uninstall', `a2r`, '--save', '--prefix', './server'], {
+      stdout: process.stdout,
+      stderr: process.stderr,
+    });
     const settings = await getSettings();
     await Promise.all(
-      settings.projects.map(
-        async (p): Promise<void> => {
-          log(`>>> Updating ${p.path}`);
-          await execa(
-            'npm',
-            [
-              'install',
-              `a2r@${latestVersion}`,
-              '--save-dev',
-              '--prefix',
-              `./${p.path}`,
-            ],
-            {
-              stdout: process.stdout,
-              stderr: process.stderr,
-            },
-          );
-        },
-      ),
+      settings.projects.map(async (p): Promise<void> => {
+        log(`>>> Updating ${p.path}`);
+        await execa(
+          'npm',
+          ['install', `a2r@${latestVersion}`, '--save-dev', '--prefix', `./${p.path}`],
+          {
+            stdout: process.stdout,
+            stderr: process.stderr,
+          },
+        );
+      }),
     );
-    log('>>> Checking for new docker images');
-    const serverVersion = await getDockerImageVersion('server');
-    if (serverVersion !== settings.server.version) {
-      settings.server.version = serverVersion;
-      log(
-        `>>> Updated server docker from ${settings.server.version} to ${serverVersion}`,
-      );
+
+    log('>>> Removing old docker images');
+    const devServerImage = 'public.ecr.aws/r7l7n8i7/acttoreact/server-dev:latest';
+    if (await imageExists(devServerImage)) {
+      await removeImage(devServerImage);
     }
-    const devServerVersion = await getDockerImageVersion('server-dev');
-    if (devServerVersion !== settings.devServer.version) {
-      settings.devServer.version = devServerVersion;
-      log(
-        `>>> Updated dev server docker from ${settings.devServer.version} to ${devServerVersion}`,
-      );
+    const serverImage = 'public.ecr.aws/r7l7n8i7/acttoreact/server:latest';
+    if (await imageExists(serverImage)) {
+      await removeImage(serverImage);
     }
+
     settings.server = {
       ...defaultServer,
       ...settings.server,

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import getDockerImageVersion from './getDockerImageVersion';
 import pullDockerImage from './pullDockerImage';
 import getCleanProjectName from './getCleanProjectName';
 import { setupSettings, defaultDevServer, defaultServer } from './settings';
@@ -10,12 +9,11 @@ import { SolutionInfo } from '../model';
 import { dockerHubRepository } from '../settings';
 
 const setup = async (projectPath: string, version: string): Promise<void> => {
-  const serverVersion = await getDockerImageVersion('server');
-  const devServerVersion = await getDockerImageVersion('server-dev');
-
   log(`Pulling docker images...`);
-  await pullDockerImage('server', serverVersion);
-  await pullDockerImage('server-dev', devServerVersion);
+  const serverImage = `${dockerHubRepository}/server`;
+  const serverDevImage = `${dockerHubRepository}/server-dev`;
+  await pullDockerImage(serverImage);
+  await pullDockerImage(serverDevImage);
 
   const projectName = await getCleanProjectName(projectPath);
 
@@ -26,13 +24,13 @@ const setup = async (projectPath: string, version: string): Promise<void> => {
     projects: [],
     devServer: {
       ...defaultDevServer,
-      version: devServerVersion,
-      imageName: `${dockerHubRepository}/server-dev`,
+      version: 'latest',
+      imageName: serverDevImage,
     },
     server: {
       ...defaultServer,
-      version: serverVersion,
-      imageName: `${dockerHubRepository}/server`,
+      version: 'latest',
+      imageName: serverImage,
       url: 'your-project-domain.com',
     },
   };

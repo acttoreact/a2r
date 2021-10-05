@@ -64,7 +64,7 @@ const url =
     ? window.location.hostname
     : domain;
 
-const protocol = url.includes('localhost') ? 'ws' : 'wss';
+const protocol = url && (url.includes('localhost') ? 'ws' : 'wss');
 
 const socket = isClient() && url
   ? io(\`\${protocol}://\${url}\`, {

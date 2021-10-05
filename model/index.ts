@@ -103,6 +103,7 @@ export interface DockerInfo {
  */
 export interface ServerInfo extends DockerInfo {
   url?: string;
+  watchFolders?: string[];
 }
 
 /**

@@ -11,7 +11,7 @@ export const templatesPath = 'templates';
 /**
  * Docker Hub repository for A2R images
  */
-export const dockerHubRepository = 'act2react';
+export const dockerHubRepository = 'public.ecr.aws/r7l7n8i7/acttoreact';
 
 /**
  * Main template folder (for init command)
@@ -81,7 +81,7 @@ export const defaultRefererKey = 'a2r_referer';
 /**
  * Default docker image
  */
-export const defaultDockerImage = 'node:12-alpine';
+export const defaultDockerImage = 'node:16-alpine';
 
 /**
  * Projects folders inside templates

@@ -8,7 +8,7 @@ import { ProcessInfo, OnValidation } from '../../model/watcher';
  */
 class RuntimeValidator {
   constructor(
-    fileValidator: (filePath: string) => Promise<boolean>,
+    fileValidator: (filePath: string) => Promise<boolean> | boolean,
     onValidation: OnValidation,
     sourcePath: string,
     targetPath: string,
@@ -31,7 +31,7 @@ class RuntimeValidator {
   /**
    * Function to validate files
    */
-  private validator: (filePath: string) => Promise<boolean>;
+  private validator: (filePath: string) => Promise<boolean> | boolean;
 
   /**
    * Function to be executed if there are no failing files after all files are processed
