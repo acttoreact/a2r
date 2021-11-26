@@ -5,10 +5,9 @@ const getMethodWrapper = (): string => `const methodWrapper = (method: string, .
     const params = args.slice();
     const ctx = (params.pop() as unknown) as GetServerSidePropsContext<ParsedUrlQuery>;
     let hostName = ctx?.req?.headers?.host;
-    let protocol = 'https';
-    if (hostName?.includes('localhost')) {
+    const protocol = hostName?.includes('localhost') ? 'http' : 'https';
+    if (hostName?.includes('localhost') || domain) {
       hostName = domain;
-      protocol = 'http';
     }
     const url = \`\${protocol}://\${hostName}\${basePath}/a2r/\${apiPath}\`;
     // console.log('on server side, calling REST API method', url);
