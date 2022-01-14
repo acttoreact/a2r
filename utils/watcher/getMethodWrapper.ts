@@ -18,7 +18,7 @@ const getMethodWrapper =
       axios({
         method: 'post',
         url,
-        headers: { ...getHeaders(ctx), a2rHost: hostname },
+        headers: { ...getHeaders(ctx), a2rHost: hostName },
         data: {
           params,
         },
