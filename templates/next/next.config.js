@@ -7,4 +7,7 @@ module.exports = {
     basePath: process.env.BASE_PATH,
     loginUrl: process.env.LOGIN_URL,
   },
+  serverRuntimeConfig: {
+    clusterUrl: process.env.CLUSTER_URL,
+  },
 };

@@ -1,4 +1,5 @@
-const getMethodWrapper = (): string => `const methodWrapper = (method: string, ...args: any[]): Promise<any> => {
+const getMethodWrapper =
+  (): string => `const methodWrapper = (method: string, ...args: any[]): Promise<any> => {
   // console.log('methodWrapper', method, [...args]);
   if (!isClient()) {
     const apiPath = method.split('.').join('/');
@@ -9,13 +10,15 @@ const getMethodWrapper = (): string => `const methodWrapper = (method: string, .
     if (hostName?.includes('localhost') || domain) {
       hostName = domain;
     }
-    const url = \`\${protocol}://\${hostName}\${basePath}/a2r/\${apiPath}\`;
+    const basicEndpoint = \`\${protocol}://\${hostName}\${basePath}/a2r/\${apiPath}\`;
+    const clusterEndpoint = \`http://\${clusterUrl}/a2r/\${apiPath}\`;
+    const url = clusterUrl ? clusterEndpoint : basicEndpoint;
     // console.log('on server side, calling REST API method', url);
     return new Promise<any>((resolve, reject): void => {
       axios({
         method: 'post',
         url,
-        headers: getHeaders(ctx),
+        headers: { ...getHeaders(ctx), a2rHost: hostname },
         data: {
           params,
         },
