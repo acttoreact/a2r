@@ -31,7 +31,7 @@ const getExternalImports = (): GroupedImports[] => [
   { path: `'axios'`, def: 'axios' },
   { path: `'shortid'`, def: 'generateId' },
   { path: `'next'`, named: ['GetServerSidePropsContext'] },
-  { path: `'querystring'`, named: ['ParsedUrlQuery']},
+  { path: `'querystring'`, named: ['ParsedUrlQuery'] },
 ];
 
 /**
@@ -41,7 +41,7 @@ const getInternalImports = (): GroupedImports[] => [
   { path: `'./socket'`, def: 'socket', named: ['MethodCall', 'SocketMessage'] },
   { path: `'./isClient'`, def: 'isClient' },
   { path: `'./getHeaders'`, def: 'getHeaders' },
-  { path: `'../../../config/settings'`, named: ['basePath', 'domain'] },
+  { path: `'../../../config/settings'`, named: ['basePath', 'domain', 'clusterUrl'] },
 ];
 
 /**
@@ -64,10 +64,7 @@ const getImports = (groupedModelImports: GroupedImports[]): string =>
  */
 const getDocs = (jsDoc: ts.JSDoc[]): string => jsDoc[0].getFullText();
 
-const getValidMethodName = (
-  methodName: string,
-  existing: { [key: string]: boolean },
-): string => {
+const getValidMethodName = (methodName: string, existing: { [key: string]: boolean }): string => {
   let res = methodName;
   let i = 2;
   while (existing[res]) {
@@ -82,10 +79,7 @@ const getValidMethodName = (
  * @param apiSourcePath API source path
  * @param proxyTargetPath Proxy target path, where generated files will be written
  */
-export const build = async (
-  apiSourcePath: string,
-  proxyTargetPath: string,
-): Promise<void> => {
+export const build = async (apiSourcePath: string, proxyTargetPath: string): Promise<void> => {
   const files = await getFilesRecursively(apiSourcePath, ['.ts']);
   const proxyIndexPath = path.resolve(proxyTargetPath, 'index.ts');
   const socketFilePath = path.resolve(proxyTargetPath, 'socket.ts');
@@ -133,25 +127,12 @@ export const build = async (
     apiObject = updateApiObject(apiObject, keys, methodName);
   }
 
-  const initialImports: GroupedImports[] = [
-    ...getExternalImports(),
-    ...getInternalImports(),
-  ];
-  const groupedImports = getGroupedModelImports(
-    initialImports,
-    imports,
-    allUsedTypes,
-  );
+  const initialImports: GroupedImports[] = [...getExternalImports(), ...getInternalImports()];
+  const groupedImports = getGroupedModelImports(initialImports, imports, allUsedTypes);
 
-  await writeFile(
-    socketFilePath,
-    getSocketProvider(),
-  );
+  await writeFile(socketFilePath, getSocketProvider());
   await writeFile(isClientFilePath, getIsClientContent());
-  await writeFile(
-    getHeadersPath,
-    getHeadersProvider(),
-  );
+  await writeFile(getHeadersPath, getHeadersProvider());
   await writeFile(
     proxyIndexPath,
     [

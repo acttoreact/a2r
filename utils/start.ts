@@ -33,7 +33,7 @@ const start = async (info: RunningCommand): Promise<void> => {
     await setFileName(options.settings);
   }
   const settings = await getSettings();
-  const { projects } = settings;
+  const { projects, devServer } = settings;
   if (projects.length) {
     const mainProjectPath = await getProjectPath();
     const mainServerPath = path.resolve(mainProjectPath, serverPath);
@@ -71,7 +71,15 @@ const start = async (info: RunningCommand): Promise<void> => {
       dockerServerPath,
     );
     await checkForFrameworkOnServer(devSettings.server.dockerName);
-    await startWatchers(mainProjectPath, devServerInternalPath);
+
+    const additionalFolders = new Set<string>(['utils', 'tools']);
+    if (devServer.watchFolders?.length) {
+      devServer.watchFolders.forEach((folder) => {
+        additionalFolders.add(folder);
+      });
+    }
+
+    await startWatchers(mainProjectPath, devServerInternalPath, Array.from(additionalFolders));
 
     const dockerExecParams = [
       'exec',

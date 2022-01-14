@@ -101,6 +101,14 @@ export const imageExists = async (imageName: string): Promise<boolean> => {
 };
 
 /**
+ * Removes docker image from local machine
+ * @param imageName Image name
+ */
+export const removeImage = async (imageName: string): Promise<void> => {
+  await execa('docker', ['image', 'rm', imageName]);
+};
+
+/**
  * Checks is docker exists applying given filter
  * @param filter Filter (as in `docker ps --filter`)
  */

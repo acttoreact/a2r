@@ -14,8 +14,13 @@ import apiFileValidation from './apiFileValidation';
 import onApiValidation from './onApiValidation';
 
 import { serverPath, modelPath, apiPath, proxyPath } from '../../settings';
+import watchFolders from './watchFolders';
 
-const start = async (mainProjectPath: string, devServerInternalPath: string): Promise<void> => {
+const start = async (
+  mainProjectPath: string,
+  devServerInternalPath: string,
+  additionalFolders: string[],
+): Promise<void> => {
   const mainServerPath = path.resolve(mainProjectPath, serverPath);
   const pathExists = await exists(serverPath);
   if (!pathExists) {
@@ -23,15 +28,12 @@ const start = async (mainProjectPath: string, devServerInternalPath: string): Pr
     out.error(error);
     throw new Error(error);
   }
-  
+
   const mainProxyPath = path.resolve(devServerInternalPath, proxyPath);
   await ensureDir(mainProxyPath);
 
   const modelSourcePath = path.resolve(mainServerPath, modelPath);
-  const onModelWatcherReady: OnReady = async (
-    watcher,
-    targetPath,
-  ): Promise<void> => {
+  const onModelWatcherReady: OnReady = async (watcher, targetPath): Promise<void> => {
     log(`Model watcher running at path: ${fullPath(modelSourcePath)}`);
     const validator = new Validator(
       modelFileValidation,
@@ -50,20 +52,11 @@ const start = async (mainProjectPath: string, devServerInternalPath: string): Pr
   };
   await watchFolder(modelWatcherOptions);
 
-
   const apiSourcePath = path.resolve(mainServerPath, apiPath);
 
-  const onApiWatcherReady: OnReady = async (
-    watcher,
-    targetPath,
-  ): Promise<void> => {
+  const onApiWatcherReady: OnReady = async (watcher, targetPath): Promise<void> => {
     log(`API watcher running at path: ${fullPath(apiSourcePath)}`);
-    const validator = new Validator(
-      apiFileValidation,
-      onApiValidation,
-      targetPath,
-      mainProxyPath,
-    );
+    const validator = new Validator(apiFileValidation, onApiValidation, targetPath, mainProxyPath);
     watcher.on('all', (eventName, eventPath): void => {
       validator.addFileToQueue({ targetPath: eventPath, type: eventName });
     });
@@ -75,6 +68,8 @@ const start = async (mainProjectPath: string, devServerInternalPath: string): Pr
   };
 
   await watchFolder(apiWatcherOptions);
+
+  await watchFolders(additionalFolders, mainServerPath);
 };
 
 export default start;

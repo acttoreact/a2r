@@ -1,6 +1,6 @@
 import getConfig from 'next/config';
 
-export const { publicRuntimeConfig } = getConfig();
+export const { publicRuntimeConfig, serverRuntimeConfig } = getConfig();
 
 const {
   refererKey: configRefererKey,
@@ -11,10 +11,14 @@ const {
   basePath: configBasePath,
 } = publicRuntimeConfig;
 
+const { clusterUrl: configClusterUrl } = serverRuntimeConfig;
+
 export const loginUrl: string = configLogin || '/login';
 export const refererKey: string = configRefererKey || 'a2r_referer';
 export const cookieKey: string = configCookieKey || 'readgarden_sessionId';
-export const userTokenKey: string = configUserTokenKey || 'readgarden_userToken';
+export const userTokenKey: string =
+  configUserTokenKey || 'readgarden_userToken';
 export const domain: string = configDomain;
 export const basePath: string =
   (process.env.NODE_ENV === 'production' && configBasePath) || '';
+export const clusterUrl: string = configClusterUrl;
