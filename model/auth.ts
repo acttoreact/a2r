@@ -7,7 +7,7 @@ export interface User {
   email: string;
   password: string;
   verified?: boolean;
-  roles: [string];
+  roles: string[];
 }
 
 /**
