@@ -6,7 +6,7 @@ const getMethodWrapper =
     const params = args.slice();
     const ctx = (params.pop() as unknown) as GetServerSidePropsContext<ParsedUrlQuery>;
     let hostName = ctx?.req?.headers?.host;
-    const protocol = hostName?.includes('localhost') ? 'http' : 'https';
+    const protocol = hostName?.includes('localhost') || !hostName ? 'http' : 'https';
     if (hostName?.includes('localhost') || domain) {
       hostName = domain;
     }
@@ -18,7 +18,7 @@ const getMethodWrapper =
       axios({
         method: 'post',
         url,
-        headers: { ...getHeaders(ctx), a2rHost: hostName },
+        headers: { ...getHeaders(ctx), a2rHost: hostName || '' },
         data: {
           params,
         },
