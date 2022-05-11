@@ -29,6 +29,7 @@ export const api: APIStructure = {};
  */
 const getExternalImports = (): GroupedImports[] => [
   { path: `'axios'`, def: 'axios' },
+  { path: `'https'`, def: 'https' },
   { path: `'shortid'`, def: 'generateId' },
   { path: `'next'`, named: ['GetServerSidePropsContext'] },
   { path: `'querystring'`, named: ['ParsedUrlQuery'] },
@@ -41,7 +42,10 @@ const getInternalImports = (): GroupedImports[] => [
   { path: `'./socket'`, def: 'socket', named: ['MethodCall', 'SocketMessage'] },
   { path: `'./isClient'`, def: 'isClient' },
   { path: `'./getHeaders'`, def: 'getHeaders' },
-  { path: `'../../../config/settings'`, named: ['basePath', 'domain', 'clusterUrl'] },
+  {
+    path: `'../../../config/settings'`,
+    named: ['basePath', 'domain', 'clusterUrl', 'ignoreUnauthorized'],
+  },
 ];
 
 /**

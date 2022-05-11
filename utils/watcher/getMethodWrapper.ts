@@ -6,7 +6,7 @@ const getMethodWrapper =
     const params = args.slice();
     const ctx = (params.pop() as unknown) as GetServerSidePropsContext<ParsedUrlQuery>;
     let hostName = ctx?.req?.headers?.host;
-    const protocol = hostName?.includes('localhost') || !hostName ? 'http' : 'https';
+    const protocol = domain && domain.includes('localhost') ? 'http' : 'https';
     if (hostName?.includes('localhost') || domain) {
       hostName = domain;
     }
@@ -15,9 +15,13 @@ const getMethodWrapper =
     const url = clusterUrl ? clusterEndpoint : basicEndpoint;
     // console.log('on server side, calling REST API method', url);
     return new Promise<any>((resolve, reject): void => {
+      const agent = new https.Agent({
+        rejectUnauthorized: !ignoreUnauthorized,
+      })
       axios({
         method: 'post',
         url,
+        httpsAgent: agent,
         headers: { ...getHeaders(ctx), a2rHost: hostName || '' },
         data: {
           params,

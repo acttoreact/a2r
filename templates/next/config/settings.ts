@@ -9,6 +9,7 @@ const {
   domain: configDomain,
   loginUrl: configLogin,
   basePath: configBasePath,
+  ignoreUnauthorized: configIgnoreUnauthorized,
 } = publicRuntimeConfig;
 
 const { clusterUrl: configClusterUrl } = serverRuntimeConfig;
@@ -22,3 +23,4 @@ export const domain: string = configDomain;
 export const basePath: string =
   (process.env.NODE_ENV === 'production' && configBasePath) || '';
 export const clusterUrl: string = configClusterUrl;
+export const ignoreUnauthorized: boolean = configIgnoreUnauthorized;
