@@ -1,6 +1,6 @@
 import { socketPath } from '../../settings';
 
-const getSocketProvider = (): string => `import { io }  from "socket.io-client";
+const getSocketProvider = (): string => `import { io } from 'socket.io-client';
 import { basePath, domain } from '../../../config/settings';
 
 import isClient from './isClient';
@@ -31,7 +31,7 @@ export interface MethodCall extends SocketCall {
    * @memberof MethodCall
    */
   params: any[];
-};
+}
 
 /**
  * Socket standard response
@@ -57,7 +57,7 @@ export interface SocketMessage {
    * @memberof SocketMessage
    */
   d: any;
-};
+}
 
 const url =
   !domain && isClient() && !window.location.hostname.includes('localhost')
@@ -66,14 +66,15 @@ const url =
 
 const protocol = url && (url.includes('localhost') ? 'ws' : 'wss');
 
-const socket = isClient() && url
-  ? io(\`\${protocol}://\${url}\`, {
-    transports: ['websocket'],
-    autoConnect: true,
-    path: \`\${basePath}${socketPath}\`,
-  })
-  : undefined;
+const socket =
+  isClient() && url
+    ? io(\`\${protocol}://\${url}\`, {
+        autoConnect: true,
+        path: \`\${basePath}${socketPath}\`,
+      })
+    : undefined;
 
-export default socket;`;
+export default socket;
+`;
 
 export default getSocketProvider;
