@@ -1,4 +1,3 @@
-import os from 'os';
 import execa from 'execa';
 import chalk from 'chalk';
 import getPort from 'get-port';
@@ -63,9 +62,6 @@ const createDevServerDocker = async (
   await writeFile(devServerEnv, devServerEnvVars.join('\n'));
 
   const networkParams = ['-p', `${serverPort}:${serverPort}`];
-  if (os.platform() !== 'darwin') {
-    networkParams.push(...['--network', 'host']);
-  }
 
   const dockerParams = [
     'create',
