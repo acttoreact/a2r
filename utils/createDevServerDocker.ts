@@ -1,3 +1,4 @@
+import os from 'os';
 import execa from 'execa';
 import chalk from 'chalk';
 import getPort from 'get-port';
@@ -31,18 +32,11 @@ const createDevServerDocker = async (
     log(
       `Port ${chalk.whiteBright(
         desiredServerPort,
-      )} is already in use, starting server at port ${chalk.greenBright(
-        serverPort,
-      )}`,
+      )} is already in use, starting server at port ${chalk.greenBright(serverPort)}`,
     );
   }
 
-  const devSettings = await init(
-    serverPort,
-    devServerName,
-    devServerImage,
-    keys,
-  );
+  const devSettings = await init(serverPort, devServerName, devServerImage, keys);
 
   const devServerEnvVars = Object.entries(devSettings.keys).map(
     ([key, value]): string => `${key}=${value}`,
@@ -69,6 +63,9 @@ const createDevServerDocker = async (
   await writeFile(devServerEnv, devServerEnvVars.join('\n'));
 
   const networkParams = ['-p', `${serverPort}:${serverPort}`];
+  if (os.platform() !== 'darwin') {
+    networkParams.push(...['--network', 'host']);
+  }
 
   const dockerParams = [
     'create',
