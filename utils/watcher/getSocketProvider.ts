@@ -1,7 +1,7 @@
 import { socketPath } from '../../settings';
 
-const getSocketProvider = (): string => `import { io } from 'socket.io-client';
-import { basePath, domain } from '../../../config/settings';
+const getSocketProvider = (): string => `import { ManagerOptions, SocketOptions, io } from 'socket.io-client';
+import { basePath, domain, useWebsocket } from '../../../config/settings';
 
 import isClient from './isClient';
 
@@ -59,6 +59,15 @@ export interface SocketMessage {
   d: any;
 }
 
+const config: Partial<ManagerOptions & SocketOptions> = {
+  autoConnect: true,
+  path: \`\${basePath}${socketPath}\`,
+};
+
+if (isClient() && useWebsocket && window.location.hostname.includes('localhost')) {
+  config.transports = ['websocket'];
+}
+
 const url =
   !domain && isClient() && !window.location.hostname.includes('localhost')
     ? window.location.hostname
@@ -66,13 +75,7 @@ const url =
 
 const protocol = url && (url.includes('localhost') ? 'ws' : 'wss');
 
-const socket =
-  isClient() && url
-    ? io(\`\${protocol}://\${url}\`, {
-        autoConnect: true,
-        path: \`\${basePath}${socketPath}\`,
-      })
-    : undefined;
+const socket = isClient() && url ? io(\`\${protocol}://\${url}\`, config) : undefined;
 
 export default socket;
 `;
