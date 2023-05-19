@@ -64,13 +64,13 @@ const config: Partial<ManagerOptions & SocketOptions> = {
   path: \`\${basePath}${socketPath}\`,
 };
 
-if (isClient() && useWebsocket && window.location.hostname.includes('localhost')) {
+if (isClient() && useWebsocket && window.location.host.includes('localhost')) {
   config.transports = ['websocket'];
 }
 
 const url =
-  !domain && isClient() && !window.location.hostname.includes('localhost')
-    ? window.location.hostname
+  !domain && isClient() && !window.location.host.includes('localhost')
+    ? window.location.host
     : domain;
 
 const protocol = url && (url.includes('localhost') ? 'ws' : 'wss');
